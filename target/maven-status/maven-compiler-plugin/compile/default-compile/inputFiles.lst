@@ -1,0 +1,16 @@
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\CorsConfig.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\controllers\PingController.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\models\Usuario.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\FechaNacimientoValida.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\FechaNacimientoValidator.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\BackendApplication.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\services\UsuarioService.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\RestConfig.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\controllers\UsuarioController.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\MappersConfig.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\models\Roles.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\repositories\UsuarioRepository.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\dtos\UsuarioDTO.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\exceptions\GlobalExceptionHandler.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\dtos\ErrorApi.java
+C:\Users\David\Desktop\Backend\src\main\java\com\backend\Backend\config\SecurityConfig.java
