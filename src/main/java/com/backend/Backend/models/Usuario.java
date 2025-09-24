@@ -29,7 +29,7 @@ public class Usuario {
     @Temporal(TemporalType.DATE)
     private Date fechaNacimiento;
 
-    private String imagen;
+    private String urlImagen;
 
     @Column(name = "activo", nullable = false)
     private Boolean activo = true;
