@@ -23,6 +23,7 @@ public class SecurityConfig {
                                "/swagger-ui/**", 
                                "/swagger-ui.html",
                                "/swagger-resources/**",
+                               "/api/login",
                                "/webjars/**").permitAll()
                 .anyRequest().permitAll())
             .formLogin(form -> form.disable())
