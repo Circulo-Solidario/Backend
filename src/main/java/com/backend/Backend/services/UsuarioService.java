@@ -75,7 +75,7 @@ public class UsuarioService {
             usuario.setAlias(usuarioDto.getAlias());
             usuario.setCorreo(usuarioDto.getCorreo());
             usuario.setFechaNacimiento(usuarioDto.getFechaNacimiento());
-            usuario.setImagen(usuarioDto.getUrlImagen());
+            usuario.setUrlImagen(usuarioDto.getUrlImagen());
 
             if (usuario.getId() == null) {
                 throw new IllegalArgumentException("El ID del usuario es nulo.");
@@ -118,7 +118,7 @@ public class UsuarioService {
         dto.setAlias(usuario.getAlias());
         dto.setCorreo(usuario.getCorreo());
         dto.setFechaNacimiento(usuario.getFechaNacimiento());
-        dto.setUrlImagen(usuario.getImagen());
+        dto.setUrlImagen(usuario.getUrlImagen());
         dto.setActivo(usuario.getActivo());
         return dto;
     }
