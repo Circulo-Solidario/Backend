@@ -1,5 +1,6 @@
 package com.backend.Backend.controllers;
 
+import com.backend.Backend.dtos.ErrorResponse;
 import com.backend.Backend.dtos.UsuarioDTO;
 import com.backend.Backend.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +49,18 @@ public class UsuarioController {
 
     @CrossOrigin
     @PostMapping
-    public ResponseEntity<UsuarioDTO> createUsuario(@RequestBody UsuarioDTO usuarioDto) {
-        UsuarioDTO createdUsuario = usuarioService.createUsuario(usuarioDto);
-        return ResponseEntity.ok(createdUsuario);
+    public ResponseEntity<?> createUsuario(@RequestBody UsuarioDTO usuarioDto) {
+        if (usuarioService.existeUsuarioByCorreo(usuarioDto.getCorreo())) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("El correo electrónico ya está registrado"));
+        }
+
+        try {
+            UsuarioDTO createdUsuario = usuarioService.createUsuario(usuarioDto);
+            return ResponseEntity.ok(createdUsuario);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     @CrossOrigin

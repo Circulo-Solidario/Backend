@@ -7,14 +7,10 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 import java.util.List;
 
-import com.backend.Backend.models.Roles;
-import com.backend.Backend.models.TipoUsuario;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioDTO {
-    private Long id;
+public class UsuarioRolesDTO {
     private String nombreApellido;
     private String alias;
     private String correo;
@@ -22,6 +18,7 @@ public class UsuarioDTO {
     private Date fechaNacimiento;
     private String urlImagen;
     private Boolean activo;
-    private TipoUsuario tipoUsuario;
-    private List<Roles> roles;
+    private List<String> roles;
 }
+
+
