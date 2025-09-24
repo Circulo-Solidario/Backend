@@ -1,13 +1,17 @@
 package com.backend.Backend.services;
 
 import com.backend.Backend.dtos.UsuarioDTO;
+import com.backend.Backend.models.Roles;
+import com.backend.Backend.models.TipoUsuario;
 import com.backend.Backend.models.Usuario;
+import com.backend.Backend.repositories.RolesRepository;
 import com.backend.Backend.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,6 +22,9 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RolesRepository rolesRepository;
 
     public List<UsuarioDTO> getAllUsuarios() {
         return usuarioRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
@@ -43,15 +50,14 @@ public class UsuarioService {
         return mapToDto(usuario);
     }
 
+    @Transactional
     public UsuarioDTO createUsuario(UsuarioDTO usuarioDto) {
         Usuario usuario = mapToEntity(usuarioDto);
 
         if (usuario.getId() != null) {
             throw new IllegalArgumentException("El ID debe ser nulo al crear un nuevo usuario.");
         }
-
-        usuario.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
-
+        
         Usuario savedUsuario = usuarioRepository.save(usuario);
         if (savedUsuario.getId() == null) {
             throw new IllegalStateException("El ID del Usuario no fue generado correctamente.");
@@ -120,6 +126,8 @@ public class UsuarioService {
         dto.setFechaNacimiento(usuario.getFechaNacimiento());
         dto.setUrlImagen(usuario.getUrlImagen());
         dto.setActivo(usuario.getActivo());
+        dto.setTipoUsuario(usuario.getTipoUsuario());
+        dto.setRoles(usuario.getRoles());
         return dto;
     }
 
@@ -130,9 +138,33 @@ public class UsuarioService {
         usuario.setCorreo(dto.getCorreo());
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
         usuario.setActivo(dto.getActivo() != null ? dto.getActivo() : true);
+        
+        usuario.setTipoUsuario(dto.getTipoUsuario() != null ? dto.getTipoUsuario() : TipoUsuario.USUARIO);
 
         if (dto.getContrasena() != null) {
             usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+        }
+
+        if (usuario.getTipoUsuario() == TipoUsuario.USUARIO) {
+            List<Roles> roles = new ArrayList<>();
+            if (dto.getRoles() != null && !dto.getRoles().isEmpty()) {
+                for (Roles rol : dto.getRoles()) {
+                    Optional<Roles> existingRole = rolesRepository.findById(rol.getId());
+                    if (!existingRole.isPresent()) {
+                        throw new IllegalArgumentException("El rol con ID " + rol.getId() + " no existe");
+                    }
+                    roles.add(existingRole.get());
+                }
+            } else {
+                Optional<Roles> defaultRole = rolesRepository.findByName("USER");
+                if (!defaultRole.isPresent()) {
+                    throw new IllegalStateException("No se encontró el rol por defecto 'USER'");
+                }
+                roles.add(defaultRole.get());
+            }
+            usuario.setRoles(roles);
+        } else {
+            usuario.setRoles(new ArrayList<>());
         }
 
         return usuario;

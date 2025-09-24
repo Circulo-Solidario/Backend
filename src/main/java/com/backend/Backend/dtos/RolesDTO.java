@@ -1,25 +1,17 @@
-package com.backend.Backend.models;
+package com.backend.Backend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "roles")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Roles {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RolesDTO {
 
     @NotNull(message = "Name of role cannot be null")
-    @Column(nullable = false, unique = true)
     private String name;
 
     private String description;
