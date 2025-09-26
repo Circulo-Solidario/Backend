@@ -1,5 +1,6 @@
 package com.backend.Backend.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class Usuario {
 
     @Column(name = "fecha_nacimiento")
     @Temporal(TemporalType.DATE)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fechaNacimiento;
 
     private String urlImagen;
