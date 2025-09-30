@@ -81,7 +81,9 @@ public class UsuarioService {
             usuario.setAlias(usuarioDto.getAlias());
             usuario.setCorreo(usuarioDto.getCorreo());
             usuario.setFechaNacimiento(usuarioDto.getFechaNacimiento());
+            usuario.setRoles(usuarioDto.getRoles());
             usuario.setUrlImagen(usuarioDto.getUrlImagen());
+            usuario.setValidado(usuario.getValidado());
 
             if (usuario.getId() == null) {
                 throw new IllegalArgumentException("El ID del usuario es nulo.");
@@ -128,6 +130,7 @@ public class UsuarioService {
         dto.setActivo(usuario.getActivo());
         dto.setTipoUsuario(usuario.getTipoUsuario());
         dto.setRoles(usuario.getRoles());
+        dto.setValidado(usuario.getValidado());
         return dto;
     }
 
@@ -138,8 +141,9 @@ public class UsuarioService {
         usuario.setCorreo(dto.getCorreo());
         usuario.setFechaNacimiento(dto.getFechaNacimiento());
         usuario.setActivo(dto.getActivo() != null ? dto.getActivo() : true);
-        
+        usuario.setUrlImagen(dto.getUrlImagen());
         usuario.setTipoUsuario(dto.getTipoUsuario() != null ? dto.getTipoUsuario() : TipoUsuario.USUARIO);
+        usuario.setValidado(dto.getValidado());
 
         if (dto.getContrasena() != null) {
             usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
