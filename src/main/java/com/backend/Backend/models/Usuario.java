@@ -50,4 +50,7 @@ public class Usuario {
         inverseJoinColumns = @JoinColumn(name = "rol_id")
     )
     private List<Roles> roles;
+
+    @Column(name = "validado", nullable = false)
+    private Boolean validado = true;
 }

@@ -24,6 +24,7 @@ public class UsuarioDTO {
     private Date fechaNacimiento;
     private String urlImagen;
     private Boolean activo;
+    private Boolean validado;
     private TipoUsuario tipoUsuario;
     private List<Roles> roles;
 }
