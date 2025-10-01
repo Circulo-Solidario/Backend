@@ -67,6 +67,7 @@ public class UsuarioService {
     }
 
 
+    @Transactional
     public UsuarioDTO updateUsuario(Long id, UsuarioDTO usuarioDto) {
         Optional<Usuario> optionalUsuario = usuarioRepository.findById(id);
 
@@ -81,9 +82,21 @@ public class UsuarioService {
             usuario.setAlias(usuarioDto.getAlias());
             usuario.setCorreo(usuarioDto.getCorreo());
             usuario.setFechaNacimiento(usuarioDto.getFechaNacimiento());
-            usuario.setRoles(usuarioDto.getRoles());
             usuario.setUrlImagen(usuarioDto.getUrlImagen());
-            usuario.setValidado(usuario.getValidado());
+            usuario.setValidado(usuarioDto.getValidado());
+            usuario.setTipoUsuario(usuarioDto.getTipoUsuario() != null ? usuarioDto.getTipoUsuario() : usuario.getTipoUsuario());
+
+            if (usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()) {
+                List<Roles> roles = new ArrayList<>();
+                for (Roles rol : usuarioDto.getRoles()) {
+                    Optional<Roles> existingRole = rolesRepository.findById(rol.getId());
+                    if (!existingRole.isPresent()) {
+                        throw new IllegalArgumentException("El rol con ID " + rol.getId() + " no existe");
+                    }
+                    roles.add(existingRole.get());
+                }
+                usuario.setRoles(roles);
+            }
 
             if (usuario.getId() == null) {
                 throw new IllegalArgumentException("El ID del usuario es nulo.");
