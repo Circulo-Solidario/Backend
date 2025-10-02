@@ -1,10 +1,11 @@
 package com.backend.Backend.controllers;
 
+import com.backend.Backend.dtos.CategoriaDTO;
 import com.backend.Backend.dtos.ProductoDTO;
 import com.backend.Backend.dtos.ProductoDonadoDTO;
+import com.backend.Backend.models.Categoria;
 import com.backend.Backend.models.Producto;
-import com.backend.Backend.repositories.ProductoRepository;
-import com.backend.Backend.repositories.UsuarioRepository;
+import com.backend.Backend.repositories.CategoriaRepository;
 import com.backend.Backend.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,7 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
     @Autowired
-    private ProductoRepository productoRepository;
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private CategoriaRepository categoriaRepository;
 
     @CrossOrigin
     @GetMapping
@@ -73,9 +72,9 @@ public class ProductoController {
     }
 
     @CrossOrigin
-    @GetMapping("/categoria/{categoria}")
-    public List<ProductoDTO> getProductosByCategoria(@PathVariable String categoria) {
-        return productoService.findAllByCategoria(categoria).stream()
+    @GetMapping("/categoria/{categoriaId}")
+    public List<ProductoDTO> getProductosByCategoria(@PathVariable Long categoriaId) {
+        return productoService.findAllByCategoria(categoriaId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -83,7 +82,7 @@ public class ProductoController {
     private Producto convertToEntity(ProductoDonadoDTO dto) {
         return Producto.builder()
                 .nombre(dto.getNombre())
-                .categoria(dto.getCategoria())
+                .categoria(convertCategoriaFromDTO(dto.getCategoria()))
                 .descripcion(dto.getDescripcion())
                 .estado(dto.getEstado())
                 .idUsuario(dto.getIdUsuario())
@@ -95,7 +94,7 @@ public class ProductoController {
         return ProductoDonadoDTO.builder()
                 .id(producto.getId())
                 .nombre(producto.getNombre())
-                .categoria(producto.getCategoria())
+                .categoria(convertCategoriaToDTO(producto.getCategoria()))
                 .descripcion(producto.getDescripcion())
                 .estado(producto.getEstado())
                 .idUsuario(producto.getIdUsuario())
@@ -107,7 +106,7 @@ public class ProductoController {
         return ProductoDTO.builder()
                 .id(producto.getId())
                 .nombre(producto.getNombre())
-                .categoria(producto.getCategoria())
+                .categoria(convertCategoriaToDTO(producto.getCategoria()))
                 .descripcion(producto.getDescripcion())
                 .estado(producto.getEstado())
                 .idUsuario(producto.getIdUsuario())
@@ -118,11 +117,35 @@ public class ProductoController {
     private Producto convertToEntity(ProductoDTO dto) {
         return Producto.builder()
                 .nombre(dto.getNombre())
-                .categoria(dto.getCategoria())
+                .categoria(convertCategoriaFromDTO(dto.getCategoria()))
                 .descripcion(dto.getDescripcion())
                 .estado(dto.getEstado())
                 .idUsuario(dto.getIdUsuario())
                 .urlImagen(dto.getUrlImagen())
+                .build();
+    }
+
+    private Categoria convertCategoriaFromDTO(CategoriaDTO dto) {
+        if (dto == null || dto.getId() == null) {
+            throw new IllegalArgumentException("La categoría es requerida");
+        }
+        
+        return categoriaRepository.findById(dto.getId())
+                .orElseThrow(() -> new IllegalArgumentException("La categoría con ID " + dto.getId() + " no existe"));
+    }
+
+    private CategoriaDTO convertCategoriaToDTO(Categoria categoria) {
+        if (categoria == null) {
+            return CategoriaDTO.builder()
+                    .id(10L) 
+                    .nombre("Otros")
+                    .descripcion("Otros artículos no categorizados")
+                    .build();
+        }
+        return CategoriaDTO.builder()
+                .id(categoria.getId())
+                .nombre(categoria.getNombre())
+                .descripcion(categoria.getDescripcion())
                 .build();
     }
 }

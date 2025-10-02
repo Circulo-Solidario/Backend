@@ -1,14 +1,10 @@
 package com.backend.Backend.dtos;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import com.backend.Backend.models.EstadoProducto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -17,9 +13,9 @@ import java.math.BigDecimal;
 public class ProductoDTO {
     private Long id;
     private String nombre;
-    private String categoria;
+    private CategoriaDTO categoria;
     private String descripcion;
-    private String estado;
+    private EstadoProducto estado;
     private Long idUsuario;
     private String urlImagen;
 }

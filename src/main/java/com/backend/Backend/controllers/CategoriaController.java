@@ -69,13 +69,15 @@ public class CategoriaController {
     private CategoriaDTO convertToDTO(Categoria categoria) {
         return CategoriaDTO.builder()
                 .id(categoria.getId())
-                .categoria(categoria.getCategoria())
+                .nombre(categoria.getNombre())
+                .descripcion(categoria.getDescripcion())
                 .build();
     }
 
     private Categoria convertToEntity(CategoriaDTO dto) {
         return Categoria.builder()
-                .categoria(dto.getCategoria())
+                .nombre(dto.getNombre())
+                .descripcion(dto.getDescripcion())
                 .build();
     }
 }

@@ -19,10 +19,12 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private String categoria;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
     private String descripcion;
     private BigDecimal costo;
     private Long idUsuario;
     private String urlImagen;
-    private String estado;
+    private EstadoProducto estado;
 }
