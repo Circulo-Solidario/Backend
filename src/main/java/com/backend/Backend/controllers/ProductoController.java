@@ -8,6 +8,9 @@ import com.backend.Backend.models.Producto;
 import com.backend.Backend.repositories.CategoriaRepository;
 import com.backend.Backend.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +29,16 @@ public class ProductoController {
 
     @CrossOrigin
     @GetMapping
-    public List<ProductoDTO> getAllProductos() {
-        return productoService.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<ProductoDTO> getAllProductos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Long categoriaId) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Producto> productos = productoService.findByFilters(nombre, categoriaId, pageable);
+
+        return productos.map(this::convertToDTO);
     }
 
     @CrossOrigin
