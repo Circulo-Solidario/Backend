@@ -1,8 +1,6 @@
 package com.backend.Backend.services;
 
 import com.backend.Backend.models.Producto;
-
-import com.backend.Backend.models.Roles;
 import com.backend.Backend.repositories.ProductoRepository;
 import com.backend.Backend.repositories.RolesRepository;
 import org.modelmapper.ModelMapper;
@@ -53,5 +51,9 @@ public class ProductoService {
 
     public List<Producto> findAllByCategoria(Long categoriaId) {
         return productoRepository.findListaDeProductosByCategoria(categoriaId);
+    }
+
+    public List<Producto> findProductosByUsuarioDonador(Long usuarioId) {
+        return productoRepository.findByUsuarioDonante(usuarioId);
     }
 }
