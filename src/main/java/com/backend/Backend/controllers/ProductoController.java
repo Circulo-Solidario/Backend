@@ -88,6 +88,19 @@ public class ProductoController {
                 .collect(Collectors.toList());
     }
 
+    @CrossOrigin
+    @GetMapping("/usuario-donador/{usuarioId}")
+    public ResponseEntity<List<ProductoDTO>> getProductosByUsuarioDonador(@PathVariable Long usuarioId) {
+        List<Producto> productos = productoService.findProductosByUsuarioDonador(usuarioId);
+        if (productos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        List<ProductoDTO> productosDTO = productos.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productosDTO);
+    }
+
     private Producto convertToEntity(ProductoDonadoDTO dto) {
         return Producto.builder()
                 .nombre(dto.getNombre())
