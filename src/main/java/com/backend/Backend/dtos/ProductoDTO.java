@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.List;
+import com.backend.Backend.dtos.UsuarioDTO;
 
 @Data
 @Builder
@@ -18,4 +20,5 @@ public class ProductoDTO {
     private EstadoProducto estado;
     private Long idUsuario;
     private String urlImagen;
+    private List<UsuarioDTO> solicitantes;
 }
