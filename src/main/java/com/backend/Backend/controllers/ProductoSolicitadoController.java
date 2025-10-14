@@ -60,8 +60,9 @@ public class ProductoSolicitadoController {
 
     @CrossOrigin
     @DeleteMapping("/{id}")
-    public void deleteProductoSolicitado(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProductoSolicitado(@PathVariable Long id) {
         productoSolicitadoService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     private ProductoSolicitadoDTO convertToDTO(ProductoSolicitado productoSolicitado) {

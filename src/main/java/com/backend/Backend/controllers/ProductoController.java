@@ -5,6 +5,8 @@ import com.backend.Backend.dtos.ProductoDTO;
 import com.backend.Backend.dtos.ProductoDonadoDTO;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.models.Producto;
+import com.backend.Backend.models.Usuario;
+import com.backend.Backend.dtos.UsuarioDTO;
 import com.backend.Backend.repositories.CategoriaRepository;
 import com.backend.Backend.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,7 +135,25 @@ public class ProductoController {
                 .estado(producto.getEstado())
                 .idUsuario(producto.getIdUsuario())
                 .urlImagen(producto.getUrlImagen())
+                .solicitantes(producto.getSolicitantes() == null ? null : producto.getSolicitantes().stream().map(this::convertUsuarioToDTO).collect(java.util.stream.Collectors.toList()))
                 .build();
+    }
+
+    private UsuarioDTO convertUsuarioToDTO(Usuario usuario) {
+        if (usuario == null) return null;
+        com.backend.Backend.dtos.UsuarioDTO dto = new com.backend.Backend.dtos.UsuarioDTO();
+        dto.setId(usuario.getId());
+        dto.setNombreApellido(usuario.getNombreApellido());
+        dto.setAlias(usuario.getAlias());
+        dto.setCorreo(usuario.getCorreo());
+        dto.setContrasena(usuario.getContrasena());
+        dto.setFechaNacimiento(usuario.getFechaNacimiento());
+        dto.setUrlImagen(usuario.getUrlImagen());
+        dto.setActivo(usuario.getActivo());
+        dto.setValidado(usuario.getValidado());
+        dto.setTipoUsuario(usuario.getTipoUsuario());
+        dto.setRoles(usuario.getRoles());
+        return dto;
     }
 
     private Producto convertToEntity(ProductoDTO dto) {

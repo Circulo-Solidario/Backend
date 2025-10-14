@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -23,8 +25,15 @@ public class Producto {
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
     private String descripcion;
-    private BigDecimal costo;
     private Long idUsuario;
     private String urlImagen;
     private EstadoProducto estado;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "producto_solicitantes",
+        joinColumns = @JoinColumn(name = "producto_id"),
+        inverseJoinColumns = @JoinColumn(name = "usuario_id")
+    )
+    @Builder.Default
+    private List<Usuario> solicitantes = new ArrayList<>();
 }
