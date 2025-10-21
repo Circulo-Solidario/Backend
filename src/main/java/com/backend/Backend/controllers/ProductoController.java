@@ -3,12 +3,15 @@ package com.backend.Backend.controllers;
 import com.backend.Backend.dtos.CategoriaDTO;
 import com.backend.Backend.dtos.ProductoDTO;
 import com.backend.Backend.dtos.ProductoDonadoDTO;
+import com.backend.Backend.mappers.ProductoMapper;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.models.Producto;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.dtos.UsuarioDTO;
 import com.backend.Backend.repositories.CategoriaRepository;
 import com.backend.Backend.services.ProductoService;
+import com.backend.Backend.services.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,11 +26,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/productos")
+@RequiredArgsConstructor
 public class ProductoController {
-    @Autowired
-    private ProductoService productoService;
-    @Autowired
-    private CategoriaRepository categoriaRepository;
+    private final ProductoService productoService;
+    private final CategoriaRepository categoriaRepository;
+    private final UsuarioService usuarioService;
+    private final ProductoMapper productoMapper;
 
     @CrossOrigin
     @GetMapping
@@ -40,42 +44,44 @@ public class ProductoController {
         Pageable pageable = PageRequest.of(page, size);
         Page<Producto> productos = productoService.findByFilters(nombre, categoriaId, pageable);
 
-        return productos.map(this::convertToDTO);
+        return productos.map(productoMapper::convertToDTO);
     }
 
     @CrossOrigin
     @GetMapping("/{id}")
     public ResponseEntity<ProductoDTO> getProductoById(@PathVariable Long id) {
-        Optional<Producto> producto = productoService.findById(id);
-        return producto.map(value -> ResponseEntity.ok(convertToDTO(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Producto producto = productoService.findById(id);
+        if (producto == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok(productoMapper.convertToDTO(producto));
     }
 
     @CrossOrigin
     @PostMapping("/donador")
     public ResponseEntity<ProductoDonadoDTO> createProductoDonador(@RequestBody ProductoDonadoDTO dto) {
-        Producto producto = convertToEntity(dto);
+        Producto producto = productoMapper.convertToEntity(dto);
         Producto savedProducto = productoService.save(producto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDonadorDTO(savedProducto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productoMapper.convertToDonadorDTO(savedProducto));
     }
 
     @CrossOrigin
     @PutMapping("/{id}")
     public ResponseEntity<ProductoDTO> updateProducto(@PathVariable Long id, @RequestBody ProductoDTO dto) {
-        Optional<Producto> existingProducto = productoService.findById(id);
-        if (existingProducto.isEmpty()) {
+        Producto existingProducto = productoService.findById(id);
+        if (existingProducto == null) {
             return ResponseEntity.notFound().build();
         }
-        Producto producto = convertToEntity(dto);
+        Producto producto = productoMapper.convertToEntity(dto);
         producto.setId(id);
         Producto updatedProducto = productoService.save(producto);
-        return ResponseEntity.ok(convertToDTO(updatedProducto));
+        return ResponseEntity.ok(productoMapper.convertToDTO(updatedProducto));
     }
 
     @CrossOrigin
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProducto(@PathVariable Long id) {
-        if (productoService.findById(id).isEmpty()) {
+        if (productoService.findById(id) == null) {
             return ResponseEntity.notFound().build();
         }
         productoService.deleteById(id);
@@ -86,7 +92,7 @@ public class ProductoController {
     @GetMapping("/categoria/{categoriaId}")
     public List<ProductoDTO> getProductosByCategoria(@PathVariable Long categoriaId) {
         return productoService.findAllByCategoria(categoriaId).stream()
-                .map(this::convertToDTO)
+                .map(productoMapper::convertToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -98,96 +104,8 @@ public class ProductoController {
             return ResponseEntity.noContent().build();
         }
         List<ProductoDTO> productosDTO = productos.stream()
-                .map(this::convertToDTO)
+                .map(productoMapper::convertToDTO)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(productosDTO);
-    }
-
-    private Producto convertToEntity(ProductoDonadoDTO dto) {
-        return Producto.builder()
-                .nombre(dto.getNombre())
-                .categoria(convertCategoriaFromDTO(dto.getCategoria()))
-                .descripcion(dto.getDescripcion())
-                .estado(dto.getEstado())
-                .idUsuario(dto.getIdUsuario())
-                .urlImagen(dto.getUrlImagen())
-                .build();
-    }
-
-    private ProductoDonadoDTO convertToDonadorDTO(Producto producto) {
-        return ProductoDonadoDTO.builder()
-                .id(producto.getId())
-                .nombre(producto.getNombre())
-                .categoria(convertCategoriaToDTO(producto.getCategoria()))
-                .descripcion(producto.getDescripcion())
-                .estado(producto.getEstado())
-                .idUsuario(producto.getIdUsuario())
-                .urlImagen(producto.getUrlImagen())
-                .build();
-    }
-
-    private ProductoDTO convertToDTO(Producto producto) {
-        return ProductoDTO.builder()
-                .id(producto.getId())
-                .nombre(producto.getNombre())
-                .categoria(convertCategoriaToDTO(producto.getCategoria()))
-                .descripcion(producto.getDescripcion())
-                .estado(producto.getEstado())
-                .idUsuario(producto.getIdUsuario())
-                .urlImagen(producto.getUrlImagen())
-                .solicitantes(producto.getSolicitantes() == null ? null : producto.getSolicitantes().stream().map(this::convertUsuarioToDTO).collect(java.util.stream.Collectors.toList()))
-                .build();
-    }
-
-    private UsuarioDTO convertUsuarioToDTO(Usuario usuario) {
-        if (usuario == null) return null;
-        com.backend.Backend.dtos.UsuarioDTO dto = new com.backend.Backend.dtos.UsuarioDTO();
-        dto.setId(usuario.getId());
-        dto.setNombreApellido(usuario.getNombreApellido());
-        dto.setAlias(usuario.getAlias());
-        dto.setCorreo(usuario.getCorreo());
-        dto.setContrasena(usuario.getContrasena());
-        dto.setFechaNacimiento(usuario.getFechaNacimiento());
-        dto.setUrlImagen(usuario.getUrlImagen());
-        dto.setActivo(usuario.getActivo());
-        dto.setValidado(usuario.getValidado());
-        dto.setTipoUsuario(usuario.getTipoUsuario());
-        dto.setRoles(usuario.getRoles());
-        return dto;
-    }
-
-    private Producto convertToEntity(ProductoDTO dto) {
-        return Producto.builder()
-                .nombre(dto.getNombre())
-                .categoria(convertCategoriaFromDTO(dto.getCategoria()))
-                .descripcion(dto.getDescripcion())
-                .estado(dto.getEstado())
-                .idUsuario(dto.getIdUsuario())
-                .urlImagen(dto.getUrlImagen())
-                .build();
-    }
-
-    private Categoria convertCategoriaFromDTO(CategoriaDTO dto) {
-        if (dto == null || dto.getId() == null) {
-            throw new IllegalArgumentException("La categoría es requerida");
-        }
-        
-        return categoriaRepository.findById(dto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("La categoría con ID " + dto.getId() + " no existe"));
-    }
-
-    private CategoriaDTO convertCategoriaToDTO(Categoria categoria) {
-        if (categoria == null) {
-            return CategoriaDTO.builder()
-                    .id(10L) 
-                    .nombre("Otros")
-                    .descripcion("Otros artículos no categorizados")
-                    .build();
-        }
-        return CategoriaDTO.builder()
-                .id(categoria.getId())
-                .nombre(categoria.getNombre())
-                .descripcion(categoria.getDescripcion())
-                .build();
     }
 }

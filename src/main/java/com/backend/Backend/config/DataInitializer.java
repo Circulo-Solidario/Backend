@@ -1,6 +1,6 @@
 package com.backend.Backend.config;
 
-import com.backend.Backend.models.Roles;
+import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.repositories.CategoriaRepository;
 import com.backend.Backend.repositories.RolesRepository;
@@ -16,11 +16,11 @@ public class DataInitializer {
         return args -> {
             // Solo inicializar si no existen roles
             if (rolRepository.count() == 0) {
-                rolRepository.save(new Roles(null, "INVITADO", "Usuario regular", true));
-                rolRepository.save(new Roles(null, "DONANTE", "Usuario donador", true));
-                rolRepository.save(new Roles(null, "DONATARIO", "Usuario donatario", true));
-                rolRepository.save(new Roles(null, "VOLUNTARIO OBSERVADOR", "Usuario voluntario", true));
-                rolRepository.save(new Roles(null, "ADMINISTRADOR", "Administrador del sistema", true));
+                rolRepository.save(new Rol(null, "INVITADO", "Usuario regular", true));
+                rolRepository.save(new Rol(null, "DONANTE", "Usuario donador", true));
+                rolRepository.save(new Rol(null, "DONATARIO", "Usuario donatario", true));
+                rolRepository.save(new Rol(null, "VOLUNTARIO OBSERVADOR", "Usuario voluntario", true));
+                rolRepository.save(new Rol(null, "ADMINISTRADOR", "Administrador del sistema", true));
                 System.out.println("✅ Roles insertados correctamente");
             }
 

@@ -2,6 +2,7 @@ package com.backend.Backend.models;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,24 +13,30 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "notifications")
+@Table
+@Builder
 public class Notificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String message;
+    private String mensaje;//Mensaje de la notificacion
 
-    @Column(nullable = false)
-    private Long toUser;
+    @ManyToOne
+    @JoinColumn(name = "a_usuario", nullable = false)
+    private Usuario AUsuario;
 
-    @Column(nullable = true)
-    private Long fromUser;
+    @ManyToOne
+    @JoinColumn(name = "de_usuario", nullable = false)
+    private Usuario deUsuario;
 
-    @Column(nullable = false)
-    private Instant date;
+    @Column(name = "fecha_notificacion", nullable = false)
+    private Date fechaNotificacion;
 
-    @Column(nullable = true)
-    private Date seenDate;
+    @Column(name = "fecha_vista")
+    private Date fechaVistaNotificacion = null;
+
+    @Column(name = "tipo_notificacion")
+    private TipoNotificaciones tipoNotificacion;
 }

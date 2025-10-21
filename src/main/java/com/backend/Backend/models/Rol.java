@@ -1,29 +1,24 @@
 package com.backend.Backend.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "roles")
+@Table
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Roles {
-
+public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Name of role cannot be null")
     @Column(nullable = false, unique = true)
-    private String name;
+    private String nombre;
 
-    private String description;
+    private String descripcion;
 
-    @JsonProperty("is_active")
-    private Boolean isActive;
+    private Boolean activo = true;
 }

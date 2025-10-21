@@ -4,7 +4,9 @@ import com.backend.Backend.dtos.ReceivedNotificacion;
 import com.backend.Backend.dtos.SendNotificacion;
 import com.backend.Backend.models.Notificacion;
 import com.backend.Backend.services.NotificacionesService;
+import com.backend.Backend.services.UsuarioService;
 import com.pusher.rest.Pusher;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -22,16 +24,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/notificaciones")
 @CrossOrigin
+@RequiredArgsConstructor
 public class NotificacionController {
     private final Pusher pusher;
     private final ModelMapper modelMapper;
     private final NotificacionesService notificacionesService;
-
-    public NotificacionController(Pusher pusher, NotificacionesService notificacionesService, ModelMapper modelMapper) {
-        this.pusher = pusher;
-        this.notificacionesService = notificacionesService;
-        this.modelMapper = modelMapper;
-    }
+    private final UsuarioService usuarioService;
 
     @GetMapping("/{user}/notseen")
     public ResponseEntity<List<ReceivedNotificacion>> getNotSeenNotification(@PathVariable Long user) {
@@ -53,7 +51,7 @@ public class NotificacionController {
     @GetMapping("/{user}")
     public ResponseEntity<List<ReceivedNotificacion>> getNotifications(@PathVariable Long user, @RequestParam(required = false) String date) {
         try {
-            Instant fromDate = Instant.parse(date);
+            Date fromDate = Date.from(Instant.parse(date));
             List<Notificacion> notifications = notificacionesService.getAllNotificationsFromUserFromDate(user, fromDate);
             if (notifications.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -82,24 +80,25 @@ public class NotificacionController {
         try {
             Notificacion notificationToSend = new Notificacion();
 
-            notificationToSend.setFromUser(notification.getFromUser());
-            notificationToSend.setToUser(notification.getToUser());
-            notificationToSend.setDate(Instant.now());
-            notificationToSend.setMessage(notification.getMessage());
-            notificationToSend.setSeenDate(null);
+            notificationToSend.setDeUsuario(usuarioService.getUsuarioById(notification.getFromUser()));
+            notificationToSend.setAUsuario(usuarioService.getUsuarioById(notification.getToUser()));
+            notificationToSend.setFechaNotificacion(Date.from(Instant.now()));
+            notificationToSend.setMensaje(notification.getMessage());
+            notificationToSend.setFechaVistaNotificacion(null);
+            notificationToSend.setTipoNotificacion(notification.getTipo());
 
             Notificacion sendedNotification = notificacionesService.pushNotification(notificationToSend);
 
             Map<String, Object> notificationData = new HashMap<>();
             notificationData.put("id", sendedNotification.getId());
-            notificationData.put("message", sendedNotification.getMessage());
-            notificationData.put("fromUser", sendedNotification.getFromUser());
-            notificationData.put("date", sendedNotification.getDate());
+            notificationData.put("message", sendedNotification.getMensaje());
+            notificationData.put("fromUser", sendedNotification.getDeUsuario());
+            notificationData.put("date", sendedNotification.getFechaNotificacion());
             notificationData.put("seenDate", null);
 
             pusher.trigger(
-                    "nm-" + notificationToSend.getToUser(),
-                    "new-notification",
+                    "nn-" + notificationToSend.getAUsuario().getId(),
+                    sendedNotification.getTipoNotificacion().toString(),
                     notificationData
             );
 

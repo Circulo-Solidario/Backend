@@ -33,6 +33,4 @@ public class PusherConfig {
         pusher.setGsonSerialiser(gson);
         return pusher;
     }
-
-    //TODO: Crear sala por id de producto
 }

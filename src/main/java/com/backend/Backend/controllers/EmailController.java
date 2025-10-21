@@ -2,7 +2,10 @@ package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.LoginRequestDTO;
 import com.backend.Backend.dtos.UsuarioResponseDTO;
+import com.backend.Backend.mappers.UsuarioMapper;
+import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,21 +18,19 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/login")
+@RequiredArgsConstructor
 public class EmailController {
     private final AuthService authService;
-
-    public EmailController(AuthService authService) {
-        this.authService = authService;
-    }
+    private final UsuarioMapper usuarioMapper;
 
     @PostMapping
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
-        Optional<UsuarioResponseDTO> usuarioOpt = authService.autenticarUsuario(loginRequest.getCorreo(), loginRequest.getContrasena());
-        if (usuarioOpt.isPresent()) {
-            UsuarioResponseDTO usuario = usuarioOpt.get();
+        Optional<Usuario> usuario = authService.autenticarUsuario(loginRequest.getCorreo(), loginRequest.getContrasena());
+        if (usuario.isPresent()) {
+            UsuarioResponseDTO usuarioResponse = usuarioMapper.mapToResponseDto(usuario.get());
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Login exitoso");
-            response.put("usuario", usuario);
+            response.put("usuario", usuarioResponse);
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(401).body(Map.of("error", "Credenciales incorrectas"));
