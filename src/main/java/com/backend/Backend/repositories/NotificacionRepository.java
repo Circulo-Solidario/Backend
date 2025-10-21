@@ -13,12 +13,13 @@ import java.util.List;
 
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
-    List<Notificacion> findNotificationsBySeenDateAndToUser(Date seenDate, Long toUser);
+    List<Notificacion> findAllByFechaVistaNotificacionAndAUsuarioId(Date fechaVistaNotificacion, Long usuarioId);
 
-    List<Notificacion> findNotificationsByToUserAndDateGreaterThan(Long toUser, Instant date);
+    List<Notificacion> findAllByAUsuarioIdAndFechaNotificacionGreaterThan(Long aUsuarioId, Date fecha);
+
 
     @Transactional
     @Modifying
-    @Query("UPDATE Notificacion SET seenDate = :date WHERE id = :id")
+    @Query("UPDATE Notificacion SET fechaVistaNotificacion = :date WHERE id = :id")
     void updateSeenDate(@Param("id") Long id, @Param("date") Date date);
 }

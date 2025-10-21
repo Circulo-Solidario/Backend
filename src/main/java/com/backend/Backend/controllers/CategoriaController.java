@@ -1,8 +1,10 @@
 package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.CategoriaDTO;
+import com.backend.Backend.mappers.CategoriaMapper;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.services.CategoriaService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +16,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categorias")
+@RequiredArgsConstructor
 public class CategoriaController {
-
-    @Autowired
-    private CategoriaService categoriaService;
+    private final CategoriaService categoriaService;
+    private final CategoriaMapper categoriaMapper;
 
     @CrossOrigin
     @GetMapping
     public List<CategoriaDTO> getAllCategorias() {
         return categoriaService.findAll().stream()
-                .map(this::convertToDTO)
+                .map(categoriaMapper::convertToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -31,16 +33,16 @@ public class CategoriaController {
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaDTO> getProductoById(@PathVariable Long id) {
         Optional<Categoria> categoria = categoriaService.findById(id);
-        return categoria.map(value -> ResponseEntity.ok(convertToDTO(value)))
+        return categoria.map(value -> ResponseEntity.ok(categoriaMapper.convertToDTO(value)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @CrossOrigin
     @PostMapping
     public ResponseEntity<CategoriaDTO> createCategoria(@RequestBody CategoriaDTO dto) {
-        Categoria categoria = convertToEntity(dto);
+        Categoria categoria = categoriaMapper.convertToEntity(dto);
         Categoria savedCategoria = categoriaService.save(categoria);
-        return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedCategoria));
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoriaMapper.convertToDTO(savedCategoria));
     }
 
     @CrossOrigin
@@ -50,10 +52,10 @@ public class CategoriaController {
         if (existingCategoria.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        Categoria categoria = convertToEntity(dto);
+        Categoria categoria = categoriaMapper.convertToEntity(dto);
         categoria.setId(id);
         Categoria updatedCategoria = categoriaService.save(categoria);
-        return ResponseEntity.ok(convertToDTO(updatedCategoria));
+        return ResponseEntity.ok(categoriaMapper.convertToDTO(updatedCategoria));
     }
 
     @CrossOrigin
@@ -64,20 +66,5 @@ public class CategoriaController {
         }
         categoriaService.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private CategoriaDTO convertToDTO(Categoria categoria) {
-        return CategoriaDTO.builder()
-                .id(categoria.getId())
-                .nombre(categoria.getNombre())
-                .descripcion(categoria.getDescripcion())
-                .build();
-    }
-
-    private Categoria convertToEntity(CategoriaDTO dto) {
-        return Categoria.builder()
-                .nombre(dto.getNombre())
-                .descripcion(dto.getDescripcion())
-                .build();
     }
 }

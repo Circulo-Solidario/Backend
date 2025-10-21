@@ -20,19 +20,29 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nombre;
+
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "categoria_id", nullable = false)
+    @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
+
     private String descripcion;
-    private Long idUsuario;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_usuario")
+    private Usuario usuario;
+
     private String urlImagen;
+
     private EstadoProducto estado;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "producto_solicitantes",
-        joinColumns = @JoinColumn(name = "producto_id"),
-        inverseJoinColumns = @JoinColumn(name = "usuario_id")
+        name = "solicitudes_usuarios",
+        joinColumns = @JoinColumn(name = "id_producto"),
+        inverseJoinColumns = @JoinColumn(name = "id_usuario")
     )
     @Builder.Default
     private List<Usuario> solicitantes = new ArrayList<>();

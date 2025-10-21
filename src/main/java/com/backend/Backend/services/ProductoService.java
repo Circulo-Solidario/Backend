@@ -3,6 +3,7 @@ package com.backend.Backend.services;
 import com.backend.Backend.models.Producto;
 import com.backend.Backend.repositories.ProductoRepository;
 import com.backend.Backend.repositories.RolesRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,17 +14,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductoService {
-    @Autowired
-    private ProductoRepository productoRepository;
-    @Autowired
-    private RolesRepository rolesRepository;
-    @Autowired
-    private ModelMapper modelMapper;
-
-    //public Page<Producto> findAll(Pageable pageable) {
-    //    return productoRepository.findAll(pageable);
-    //}
+    private final ProductoRepository productoRepository;
+    private final RolesRepository rolesRepository;
+    private final ModelMapper modelMapper;
 
     public Page<Producto> findByFilters(String nombre, Long categoriaId, Pageable pageable) {
         if (nombre != null && categoriaId != null) {
@@ -37,8 +32,8 @@ public class ProductoService {
         }
     }
 
-    public Optional<Producto> findById(Long id) {
-        return productoRepository.findById(id);
+    public Producto findById(Long id) {
+        return productoRepository.findById(id).orElse(null);
     }
 
     public Producto save(Producto producto) {
@@ -54,6 +49,6 @@ public class ProductoService {
     }
 
     public List<Producto> findProductosByUsuarioDonador(Long usuarioId) {
-        return productoRepository.findByUsuarioDonante(usuarioId);
+        return productoRepository.findAllByUsuarioId(usuarioId);
     }
 }

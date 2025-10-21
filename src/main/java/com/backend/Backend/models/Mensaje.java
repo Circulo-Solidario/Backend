@@ -3,16 +3,19 @@ package com.backend.Backend.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "messages")
+@Table
+@Builder
 public class Mensaje {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,14 +23,16 @@ public class Mensaje {
     private Long id;
 
     @Column(nullable = false)
-    private String content;
+    private String mensaje;
 
-    @Column(nullable = false)
-    private String username;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario; //Usuario que postea el mensaje
 
-    @Column(nullable = false)
-    private String room;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn()
+    private Sala sala;//Sala a la que corresponde el mensaje
 
-    @Column(nullable = false)
-    private Instant timestamp;
+    @Column(name = "fecha_mensaje", nullable = false)
+    private Date fechaMensaje;
 }

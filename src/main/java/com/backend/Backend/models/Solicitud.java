@@ -7,18 +7,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Builder
 @Table
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Categoria {
+public class Solicitud {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String nombre;
+    @ManyToOne
+    @JoinColumn(name = "de_usuario")
+    private Usuario deUsuario;
 
-    private String descripcion;
+    @ManyToOne
+    @JoinColumn(name = "a_usuario")
+    private Usuario aUsuario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_producto")
+    private Producto producto;
+
+    private Boolean aceptada = false;
 }

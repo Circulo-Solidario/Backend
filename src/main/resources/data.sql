@@ -1,8 +1,8 @@
-INSERT INTO roles (id, name, description, is_active) VALUES (1, 'INVITADO', 'Usuario regular', true);
-INSERT INTO roles (id, name, description, is_active) VALUES (2, 'DONANTE', 'Usuario donador', true);
-INSERT INTO roles (id, name, description, is_active) VALUES (3, 'DONATARIO', 'Usuario donatario', true);
-INSERT INTO roles (id, name, description, is_active) VALUES (4, 'VOLUNTARIO OBSERVADOR', 'Usuario voluntario', true);
-INSERT INTO roles (id, name, description, is_active) VALUES (5, 'ADMINISTRADOR', 'Administrador del sistema', true);
+INSERT INTO rol (id, nombre, descripcion, activo) VALUES (1, 'INVITADO', 'Usuario regular', true);
+INSERT INTO rol (id, nombre, descripcion, activo) VALUES (2, 'DONANTE', 'Usuario donador', true);
+INSERT INTO rol (id, nombre, descripcion, activo) VALUES (3, 'DONATARIO', 'Usuario donatario', true);
+INSERT INTO rol (id, nombre, descripcion, activo) VALUES (4, 'VOLUNTARIO OBSERVADOR', 'Usuario voluntario', true);
+INSERT INTO rol (id, nombre, descripcion, activo) VALUES (5, 'ADMINISTRADOR', 'Administrador del sistema', true);
 
 INSERT INTO categoria (id, nombre, descripcion) VALUES (1, 'Ropa', 'Vestimenta y accesorios de todo tipo');
 INSERT INTO categoria (id, nombre, descripcion) VALUES (2, 'Calzado', 'Zapatos, zapatillas y todo tipo de calzado');

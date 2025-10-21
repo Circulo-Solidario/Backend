@@ -1,5 +1,6 @@
 package com.backend.Backend.controllers;
 
+import com.backend.Backend.dtos.CreateRoomDTO;
 import com.backend.Backend.models.Sala;
 import com.backend.Backend.services.SalasService;
 import org.springframework.http.HttpStatus;
@@ -17,16 +18,22 @@ public class RoomController {
     }
 
     @GetMapping("/buscarSala")
-    public ResponseEntity<Sala> findRoom(@RequestParam(required = true) Long user1, @RequestParam(required = true) Long user2) {
+    public ResponseEntity<Sala> findRoom(@RequestParam Long user1, @RequestParam Long user2,
+                                         @RequestParam Long productId) {
         try {
             Sala room = new Sala();
-            room.setRoomName(roomsService.searchRoom(user1, user2));
-            if (room.getRoomName() == null) {
-                room.setRoomName(roomsService.createRoom(user1, user2));
+            room.setNombreSala(roomsService.searchRoom(user1, user2, productId));
+            if (room.getNombreSala() == null) {
+                room.setNombreSala(roomsService.createRoom(user1, user2, productId));
             }
             return ResponseEntity.ok(room);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PostMapping("/crearSala")
+    public ResponseEntity<Boolean> createRoom(@RequestBody CreateRoomDTO room) {
+        return ResponseEntity.ok(true);
     }
 }
