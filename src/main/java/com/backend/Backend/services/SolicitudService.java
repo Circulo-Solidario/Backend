@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -45,6 +46,13 @@ public class SolicitudService {
 
         if (producto.getEstado() == EstadoProducto.DISPONIBLE) {
             producto.setEstado(EstadoProducto.SOLICITADO);
+        }
+
+        if (producto.getSolicitantes() == null) {
+            producto.setSolicitantes(new ArrayList<>());
+        }
+        if (!producto.getSolicitantes().contains(deUsuario)) {
+            producto.getSolicitantes().add(deUsuario);
         }
 
         productoRepository.save(producto);
