@@ -20,8 +20,17 @@ public class SolicitudController {
 
     @CrossOrigin
     @GetMapping
-    public List<Solicitud> getAllSolicitudes() {
-        return solicitudService.findAll();
+    public ResponseEntity<List<Solicitud>> getAllSolicitudes(@RequestParam(required = false) Long deUsuario, @RequestParam(required = false) Long aUsuario) {
+        if (deUsuario != null && aUsuario != null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if(deUsuario != null){
+            return ResponseEntity.ok(solicitudService.findSolicitudesDeUsuario(deUsuario));
+        }
+        if(aUsuario != null){
+            return ResponseEntity.ok(solicitudService.findSolicitudesAUsuario(aUsuario));
+        }
+        return ResponseEntity.ok(solicitudService.findAll());
     }
 
     @CrossOrigin

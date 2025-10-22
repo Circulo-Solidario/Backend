@@ -49,17 +49,14 @@ public class NotificacionController {
     }
 
     @GetMapping("/{user}")
-    public ResponseEntity<List<ReceivedNotificacion>> getNotifications(@PathVariable Long user, @RequestParam(required = false) String date) {
+    public ResponseEntity<List<Notificacion>> getNotifications(@PathVariable Long user, @RequestParam(required = false) String date) {
         try {
             Date fromDate = Date.from(Instant.parse(date));
             List<Notificacion> notifications = notificacionesService.getAllNotificationsFromUserFromDate(user, fromDate);
             if (notifications.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
-            List<ReceivedNotificacion> receivedNotifications = notifications.stream()
-                    .map(notification -> modelMapper.map(notification, ReceivedNotificacion.class))
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(receivedNotifications);
+            return ResponseEntity.ok(notifications);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -80,25 +77,26 @@ public class NotificacionController {
         try {
             Notificacion notificationToSend = new Notificacion();
 
-            notificationToSend.setDeUsuario(usuarioService.getUsuarioById(notification.getFromUser()));
-            notificationToSend.setAUsuario(usuarioService.getUsuarioById(notification.getToUser()));
+            notificationToSend.setDeUsuario(usuarioService.getUsuarioById(notification.getDeUsuario()));
+            notificationToSend.setAUsuario(usuarioService.getUsuarioById(notification.getAUsuario()));
             notificationToSend.setFechaNotificacion(Date.from(Instant.now()));
-            notificationToSend.setMensaje(notification.getMessage());
+            notificationToSend.setMensaje(notification.getMensaje());
             notificationToSend.setFechaVistaNotificacion(null);
-            notificationToSend.setTipoNotificacion(notification.getTipo());
+            notificationToSend.setTipoNotificacion(notification.getTipoNotificacion());
 
             Notificacion sendedNotification = notificacionesService.pushNotification(notificationToSend);
 
             Map<String, Object> notificationData = new HashMap<>();
             notificationData.put("id", sendedNotification.getId());
-            notificationData.put("message", sendedNotification.getMensaje());
-            notificationData.put("fromUser", sendedNotification.getDeUsuario());
-            notificationData.put("date", sendedNotification.getFechaNotificacion());
-            notificationData.put("seenDate", null);
+            notificationData.put("mensaje", sendedNotification.getMensaje());
+            notificationData.put("deUsuario", sendedNotification.getDeUsuario());
+            notificationData.put("fechaNotificacion", sendedNotification.getFechaNotificacion());
+            notificationData.put("tipoNotificacion", sendedNotification.getTipoNotificacion());
+            notificationData.put("fechaVistaNotificacion", null);
 
             pusher.trigger(
                     "nn-" + notificationToSend.getAUsuario().getId(),
-                    sendedNotification.getTipoNotificacion().toString(),
+                    "new-notification",
                     notificationData
             );
 

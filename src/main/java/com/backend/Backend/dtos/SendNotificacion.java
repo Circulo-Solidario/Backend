@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SendNotificacion {
-    private Long fromUser;
-    private Long toUser;
-    private String message;
-    private TipoNotificaciones tipo;
+    private Long deUsuario;
+    private Long aUsuario;
+    private String mensaje;
+    private TipoNotificaciones tipoNotificacion;
 }

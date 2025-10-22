@@ -3,6 +3,7 @@ package com.backend.Backend.controllers;
 import com.backend.Backend.dtos.ErrorResponse;
 import com.backend.Backend.dtos.UsuarioDTO;
 import com.backend.Backend.mappers.UsuarioMapper;
+import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,9 @@ public class UsuarioController {
     @CrossOrigin
     @GetMapping("/info/{email}")
     public ResponseEntity<UsuarioDTO> getUsuarioByCorreo(@PathVariable("email") String email) {
-        UsuarioDTO usuario = usuarioMapper.mapToDto(usuarioService.getUsuarioByCorreo(email));
+        Usuario usuario = usuarioService.getUsuarioByCorreo(email);
         if (usuario != null) {
-            return ResponseEntity.ok(usuario);
+            return ResponseEntity.ok(usuarioMapper.mapToDto(usuario));
         }
         return ResponseEntity.notFound().build();
     }

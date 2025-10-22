@@ -11,7 +11,7 @@ public class SolicitudMapper {
     public SolicitudDTO entityToDTO(Solicitud solicitud) {
         return SolicitudDTO.builder()
                 .id(solicitud.getId())
-                .aUsuario(solicitud.getAUsuario().getId())
+                .aUsuario(solicitud.getAusuario().getId())
                 .deUsuario(solicitud.getDeUsuario().getId())
                 .idProducto(solicitud.getProducto().getId())
                 .build();

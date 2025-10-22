@@ -17,9 +17,9 @@ public class NotificacionMapper {
 
     public Notificacion mapToEntity(SendNotificacion sendNotificacion) {
         return Notificacion.builder()
-                .AUsuario(usuarioService.getUsuarioById(sendNotificacion.getToUser()))
-                .deUsuario(usuarioService.getUsuarioById(sendNotificacion.getFromUser()))
-                .mensaje(sendNotificacion.getMessage())
+                .AUsuario(usuarioService.getUsuarioById(sendNotificacion.getAUsuario()))
+                .deUsuario(usuarioService.getUsuarioById(sendNotificacion.getDeUsuario()))
+                .mensaje(sendNotificacion.getMensaje())
                 .build();
     }
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 @Data
 public class ReceivedNotificacion {
     private Long id;
-    private String message;
+    private String mensaje;
     private Long fromUser;
     private Instant date;
     private Date seenDate;

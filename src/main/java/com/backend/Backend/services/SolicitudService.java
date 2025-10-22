@@ -29,6 +29,14 @@ public class SolicitudService {
         return solicitudRepository.findAll();
     }
 
+    public List<Solicitud> findSolicitudesDeUsuario(Long deUsuario) {
+        return solicitudRepository.findAllByDeUsuario_Id(deUsuario);
+    }
+
+    public List<Solicitud> findSolicitudesAUsuario(Long aUsuario) {
+        return solicitudRepository.findAllByAusuario_Id(aUsuario);
+    }
+
     public Optional<Solicitud> findById(Long id) {
         return solicitudRepository.findById(id);
     }
@@ -60,7 +68,7 @@ public class SolicitudService {
         Solicitud solicitud = new Solicitud();
         solicitud.setProducto(producto);
         solicitud.setDeUsuario(deUsuario);
-        solicitud.setAUsuario(aUsuario);
+        solicitud.setAusuario(aUsuario);
         solicitud.setAceptada(false);
 
         return solicitudRepository.save(solicitud);

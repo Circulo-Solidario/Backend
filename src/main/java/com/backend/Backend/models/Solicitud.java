@@ -23,7 +23,7 @@ public class Solicitud {
 
     @ManyToOne
     @JoinColumn(name = "a_usuario")
-    private Usuario aUsuario;
+    private Usuario ausuario;
 
     @ManyToOne
     @JoinColumn(name = "id_producto")
