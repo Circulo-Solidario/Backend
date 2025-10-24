@@ -22,9 +22,9 @@ public class SalasService {
     }
 
     public String createRoom(Long user1, Long user2, Long productId) {
-        Usuario usuario1 = usuarioService.getUsuarioById(user1);
-        Usuario usuario2 = usuarioService.getUsuarioById(user2);
-        Producto producto = productoService.findById(productId);
+        Usuario usuario1 = usuarioService.getUsuarioById(user1).get();
+        Usuario usuario2 = usuarioService.getUsuarioById(user2).get();
+        Producto producto = productoService.findById(productId).get();
         return salasRepository.save(new Sala(usuario1, usuario2, producto)).getNombreSala();
     }
 

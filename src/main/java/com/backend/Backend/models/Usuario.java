@@ -51,5 +51,5 @@ public class Usuario {
     private List<Rol> roles;
 
     @Column(name = "validado", nullable = false)
-    private Boolean validado = true;
+    private Boolean validado = false;
 }

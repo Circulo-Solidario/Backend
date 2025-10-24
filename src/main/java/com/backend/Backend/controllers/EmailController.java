@@ -1,6 +1,7 @@
 package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.login.LoginRequestDTO;
+import com.backend.Backend.dtos.usuario.UsuarioDTO;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.AuthService;
@@ -27,7 +28,7 @@ public class EmailController {
     public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
         Optional<Usuario> usuario = authService.autenticarUsuario(loginRequest.getCorreo(), loginRequest.getContrasena());
         if (usuario.isPresent()) {
-            UsuarioResponseDTO usuarioResponse = usuarioMapper.mapToResponseDto(usuario.get());
+            UsuarioDTO usuarioResponse = usuarioMapper.mapToDto(usuario.get());
             Map<String, Object> response = new HashMap<>();
             response.put("mensaje", "Login exitoso");
             response.put("usuario", usuarioResponse);

@@ -1,7 +1,7 @@
 package com.backend.Backend.dtos.usuario;
 
-import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.enums.TipoUsuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,13 +14,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NuevoUsuarioDTO {
+public class EditarUsuarioDTO {
     private String nombreApellido;
     private String alias;
-    private String correo;
-    private String contrasena;
     private Date fechaNacimiento;
     private String urlImagen;
-    private TipoUsuario tipoUsuario;
     private List<Long> roles;
 }
