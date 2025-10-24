@@ -1,9 +1,9 @@
 package com.backend.Backend.mappers;
 
-import com.backend.Backend.dtos.UsuarioDTO;
-import com.backend.Backend.dtos.UsuarioResponseDTO;
+import com.backend.Backend.dtos.usuario.UsuarioDTO;
+import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
 import com.backend.Backend.models.Rol;
-import com.backend.Backend.models.TipoUsuario;
+import com.backend.Backend.models.enums.TipoUsuario;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.repositories.RolesRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,22 +21,7 @@ public class UsuarioMapper {
     private final RolesRepository rolesRepository;
 
     public UsuarioDTO mapToDto(Usuario usuario) {
-        UsuarioDTO dto = new UsuarioDTO();
-        dto.setId(usuario.getId());
-        dto.setNombreApellido(usuario.getNombreApellido());
-        dto.setAlias(usuario.getAlias());
-        dto.setCorreo(usuario.getCorreo());
-        dto.setFechaNacimiento(usuario.getFechaNacimiento());
-        dto.setUrlImagen(usuario.getUrlImagen());
-        dto.setActivo(usuario.getActivo());
-        dto.setTipoUsuario(usuario.getTipoUsuario());
-        dto.setRoles(usuario.getRoles());
-        dto.setValidado(usuario.getValidado());
-        return dto;
-    }
-
-    public UsuarioResponseDTO mapToResponseDto(Usuario usuario) {
-        return UsuarioResponseDTO.builder()
+        return UsuarioDTO.builder()
                 .id(usuario.getId())
                 .nombreApellido(usuario.getNombreApellido())
                 .alias(usuario.getAlias())
@@ -44,6 +29,7 @@ public class UsuarioMapper {
                 .fechaNacimiento(usuario.getFechaNacimiento())
                 .urlImagen(usuario.getUrlImagen())
                 .activo(usuario.getActivo())
+                .validado(usuario.getValidado())
                 .tipoUsuario(usuario.getTipoUsuario())
                 .roles(usuario.getRoles())
                 .build();
@@ -59,10 +45,6 @@ public class UsuarioMapper {
         usuario.setUrlImagen(dto.getUrlImagen());
         usuario.setTipoUsuario(dto.getTipoUsuario() != null ? dto.getTipoUsuario() : TipoUsuario.USUARIO);
         usuario.setValidado(dto.getValidado());
-
-        if (dto.getContrasena() != null) {
-            usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
-        }
 
         if (usuario.getTipoUsuario() == TipoUsuario.USUARIO) {
             List<Rol> roles = new ArrayList<>();
@@ -91,12 +73,11 @@ public class UsuarioMapper {
 
     public UsuarioDTO convertUsuarioToDTO(Usuario usuario) {
         if (usuario == null) return null;
-        com.backend.Backend.dtos.UsuarioDTO dto = new com.backend.Backend.dtos.UsuarioDTO();
+        UsuarioDTO dto = new UsuarioDTO();
         dto.setId(usuario.getId());
         dto.setNombreApellido(usuario.getNombreApellido());
         dto.setAlias(usuario.getAlias());
         dto.setCorreo(usuario.getCorreo());
-        dto.setContrasena(usuario.getContrasena());
         dto.setFechaNacimiento(usuario.getFechaNacimiento());
         dto.setUrlImagen(usuario.getUrlImagen());
         dto.setActivo(usuario.getActivo());
@@ -104,5 +85,16 @@ public class UsuarioMapper {
         dto.setTipoUsuario(usuario.getTipoUsuario());
         dto.setRoles(usuario.getRoles());
         return dto;
+    }
+
+    public UsuarioSimpleDTO mapEntityToUsuarioSimple(Usuario usuario){
+        return UsuarioSimpleDTO.builder()
+                .id(usuario.getId())
+                .nombreApellido(usuario.getNombreApellido())
+                .alias(usuario.getAlias())
+                .correo(usuario.getCorreo())
+                .urlImagen(usuario.getUrlImagen())
+                .tipoUsuario(usuario.getTipoUsuario())
+                .build();
     }
 }

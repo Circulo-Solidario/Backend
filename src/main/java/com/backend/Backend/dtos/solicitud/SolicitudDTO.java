@@ -1,6 +1,5 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.solicitud;
 
-import com.backend.Backend.models.TipoNotificaciones;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,11 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class SendNotificacion {
+@AllArgsConstructor
+public class SolicitudDTO {
     private Long deUsuario;
     private Long aUsuario;
+    private Long idProducto;
     private String mensaje;
-    private TipoNotificaciones tipoNotificacion;
 }

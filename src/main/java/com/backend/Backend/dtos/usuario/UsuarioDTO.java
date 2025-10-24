@@ -1,4 +1,4 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.usuario;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.backend.Backend.models.Rol;
-import com.backend.Backend.models.TipoUsuario;
+import com.backend.Backend.models.enums.TipoUsuario;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
@@ -21,8 +21,6 @@ public class UsuarioDTO {
     private String nombreApellido;
     private String alias;
     private String correo;
-    private String contrasena;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date fechaNacimiento;
     private String urlImagen;
     private Boolean activo;

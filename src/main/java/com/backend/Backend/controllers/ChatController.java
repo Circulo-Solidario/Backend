@@ -1,12 +1,10 @@
 package com.backend.Backend.controllers;
 
-import com.backend.Backend.dtos.MensajeRequest;
+import com.backend.Backend.dtos.mensaje.MensajeRequest;
 import com.backend.Backend.mappers.MensajeMapper;
 import com.backend.Backend.models.Mensaje;
 import com.backend.Backend.services.MensajesService;
 import com.pusher.rest.Pusher;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

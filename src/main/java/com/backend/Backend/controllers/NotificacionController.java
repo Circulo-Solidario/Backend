@@ -1,15 +1,14 @@
 package com.backend.Backend.controllers;
 
-import com.backend.Backend.dtos.ReceivedNotificacion;
-import com.backend.Backend.dtos.SendNotificacion;
+import com.backend.Backend.dtos.notificacion.ReceivedNotificacionDTO;
+import com.backend.Backend.dtos.notificacion.SendNotificacion;
+import com.backend.Backend.mappers.NotificacionMapper;
 import com.backend.Backend.models.Notificacion;
+import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.NotificacionesService;
 import com.backend.Backend.services.UsuarioService;
 import com.pusher.rest.Pusher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,73 +17,86 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/notificaciones")
 @CrossOrigin
 @RequiredArgsConstructor
 public class NotificacionController {
     private final Pusher pusher;
-    private final ModelMapper modelMapper;
     private final NotificacionesService notificacionesService;
     private final UsuarioService usuarioService;
+    private final NotificacionMapper notificacionMapper;
 
     @GetMapping("/{user}/notseen")
-    public ResponseEntity<List<ReceivedNotificacion>> getNotSeenNotification(@PathVariable Long user) {
+    public ResponseEntity<List<ReceivedNotificacionDTO>> getNotSeenNotification(@PathVariable Long user) {
         try {
             List<Notificacion> notifications = notificacionesService.getNotSeenNotificationFromUser(user);
             if (notifications.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.noContent().build();
             }
-            List<ReceivedNotificacion> receivedNotifications = notifications.stream()
-                    .map(notification -> modelMapper.map(notification, ReceivedNotificacion.class))
+            List<ReceivedNotificacionDTO> receivedNotifications = notifications.stream()
+                    .map(notificacionMapper::mapEntityToReceiveNotificacion)
                     .collect(Collectors.toList());
             return ResponseEntity.ok(receivedNotifications);
         }
         catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/{user}")
-    public ResponseEntity<List<Notificacion>> getNotifications(@PathVariable Long user, @RequestParam(required = false) String date) {
+    public ResponseEntity<List<ReceivedNotificacionDTO>> getNotifications(@PathVariable Long user, @RequestParam String date) {
         try {
             Date fromDate = Date.from(Instant.parse(date));
             List<Notificacion> notifications = notificacionesService.getAllNotificationsFromUserFromDate(user, fromDate);
             if (notifications.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.noContent().build();
             }
-            return ResponseEntity.ok(notifications);
+            return ResponseEntity.ok(notifications.stream().map(notificacionMapper::mapEntityToReceiveNotificacion).collect(Collectors.toList()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @PatchMapping("/markseen")
-    public ResponseEntity<Boolean> markSeenNotification(@RequestBody Long notificationId) {
+    public ResponseEntity<ReceivedNotificacionDTO> markSeenNotification(@RequestBody Long notificationId) {
         try {
-            notificacionesService.markSeenNotification(notificationId, Date.from(Instant.now()));
-            return ResponseEntity.ok(true);
+            Optional<Notificacion> notificacion = notificacionesService.getNotificationById(notificationId);
+            if(notificacion.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            Notificacion notificacionAModificar = notificacion.get();
+            notificacionAModificar.setFechaVistaNotificacion(Date.from(Instant.now()));
+            Notificacion notificacionActualizada = notificacionesService.saveNotificacion(notificacionAModificar);
+            return ResponseEntity.ok(notificacionMapper.mapEntityToReceiveNotificacion(notificacionActualizada));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
     }
 
     @PostMapping("/push")
     public ResponseEntity<Notificacion> pushNotification(@RequestBody SendNotificacion notification) {
         try {
+            Optional<Usuario> deUsuario = usuarioService.getUsuarioById(notification.getDeUsuario());
+            Optional<Usuario> aUsuario = usuarioService.getUsuarioById(notification.getAUsuario());
+
+            if(deUsuario.isEmpty() || aUsuario.isEmpty()) {
+                return ResponseEntity.badRequest().build();
+            }
+
             Notificacion notificationToSend = new Notificacion();
 
-            notificationToSend.setDeUsuario(usuarioService.getUsuarioById(notification.getDeUsuario()));
-            notificationToSend.setAUsuario(usuarioService.getUsuarioById(notification.getAUsuario()));
+            notificationToSend.setDeUsuario(deUsuario.get());
+            notificationToSend.setAUsuario(aUsuario.get());
             notificationToSend.setFechaNotificacion(Date.from(Instant.now()));
             notificationToSend.setMensaje(notification.getMensaje());
             notificationToSend.setFechaVistaNotificacion(null);
             notificationToSend.setTipoNotificacion(notification.getTipoNotificacion());
 
-            Notificacion sendedNotification = notificacionesService.pushNotification(notificationToSend);
+            Notificacion sendedNotification = notificacionesService.saveNotificacion(notificationToSend);
 
             Map<String, Object> notificationData = new HashMap<>();
             notificationData.put("id", sendedNotification.getId());
@@ -99,14 +111,9 @@ public class NotificacionController {
                     "new-notification",
                     notificationData
             );
-
-            log.info("Notification sent successfully");
             return ResponseEntity.ok(notificationToSend);
         }catch (Exception error){
-            log.error("Failed to push notification: {}", notification, error);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.internalServerError().build();
         }
     }
-
-
 }

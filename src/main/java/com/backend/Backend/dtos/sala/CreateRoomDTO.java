@@ -1,4 +1,4 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.sala;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

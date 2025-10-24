@@ -1,21 +1,21 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.producto;
 
-import com.backend.Backend.models.EstadoProducto;
+import com.backend.Backend.dtos.categoria.CategoriaDTO;
+import com.backend.Backend.models.enums.EstadoProducto;
+import com.backend.Backend.models.Usuario;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ProductoDonadoDTO {
+@NoArgsConstructor
+public class ProductoSinLolicitudesDTO {
     private Long id;
     private String nombre;
     private CategoriaDTO categoria;
     private String descripcion;
     private EstadoProducto estado;
-    private Long idUsuario;
+    private Usuario usuario;
     private String urlImagen;
 }

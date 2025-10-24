@@ -1,16 +1,16 @@
 package com.backend.Backend.controllers;
 
-import com.backend.Backend.dtos.ErrorResponse;
-import com.backend.Backend.dtos.UsuarioDTO;
+import com.backend.Backend.dtos.common.ErrorResponse;
+import com.backend.Backend.dtos.usuario.UsuarioDTO;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -22,33 +22,27 @@ public class UsuarioController {
     @CrossOrigin
     @GetMapping
     public ResponseEntity<List<UsuarioDTO>> getAllUsuarios() {
+        List<Usuario> usuarios = usuarioService.getAllUsuarios();
+        if (usuarios.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok(usuarioService.getAllUsuarios().stream().map(usuarioMapper::mapToDto).toList());
     }
 
     @CrossOrigin
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> getUsuarioById(@PathVariable Long id) {
-        UsuarioDTO usuario = usuarioMapper.mapToDto(usuarioService.getUsuarioById(id));
-        if (usuario != null) {
-            return ResponseEntity.ok(usuario);
-        }
-        return ResponseEntity.notFound().build();
+        Optional<Usuario> usuario = usuarioService.getUsuarioById(id);
+        return usuario.map(value -> ResponseEntity.ok(usuarioMapper.mapToDto(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @CrossOrigin
-    @GetMapping("/info/{email}")
-    public ResponseEntity<UsuarioDTO> getUsuarioByCorreo(@PathVariable("email") String email) {
-        Usuario usuario = usuarioService.getUsuarioByCorreo(email);
-        if (usuario != null) {
-            return ResponseEntity.ok(usuarioMapper.mapToDto(usuario));
-        }
-        return ResponseEntity.notFound().build();
-    }
-
-    @CrossOrigin
-    @GetMapping("/existe/{email}")
-    public ResponseEntity<Boolean> existeUsuarioByCorreo(@PathVariable("email") String email) {
-        return ResponseEntity.ok(usuarioService.existeUsuarioByCorreo(email));
+    @GetMapping("/info")
+    public ResponseEntity<UsuarioDTO> getUsuarioByCorreo(@RequestParam() String email) {
+        Optional<Usuario> usuario = usuarioService.getUsuarioByCorreo(email);
+        return usuario
+                .map(value -> ResponseEntity.ok(usuarioMapper.mapToDto(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @CrossOrigin

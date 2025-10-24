@@ -1,4 +1,4 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.login;
 
 import lombok.Getter;
 import lombok.Setter;

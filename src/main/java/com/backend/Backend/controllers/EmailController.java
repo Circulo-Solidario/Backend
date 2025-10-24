@@ -1,11 +1,11 @@
 package com.backend.Backend.controllers;
 
-import com.backend.Backend.dtos.LoginRequestDTO;
-import com.backend.Backend.dtos.UsuarioResponseDTO;
+import com.backend.Backend.dtos.login.LoginRequestDTO;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.services.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +33,7 @@ public class EmailController {
             response.put("usuario", usuarioResponse);
             return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.status(401).body(Map.of("error", "Credenciales incorrectas"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Credenciales incorrectas"));
         }
     }
 }

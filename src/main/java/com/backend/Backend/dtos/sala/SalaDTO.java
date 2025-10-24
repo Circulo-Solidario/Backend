@@ -1,4 +1,4 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.sala;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package com.backend.Backend.services;
 
+import com.backend.Backend.dtos.categoria.CategoriaDTO;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.repositories.CategoriaRepository;
 import lombok.RequiredArgsConstructor;

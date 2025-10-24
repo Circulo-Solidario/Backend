@@ -1,6 +1,6 @@
 package com.backend.Backend.controllers;
 
-import com.backend.Backend.dtos.CreateRoomDTO;
+import com.backend.Backend.dtos.sala.CreateRoomDTO;
 import com.backend.Backend.models.Sala;
 import com.backend.Backend.services.SalasService;
 import org.springframework.http.HttpStatus;

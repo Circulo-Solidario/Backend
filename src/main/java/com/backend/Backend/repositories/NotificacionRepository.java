@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
@@ -17,9 +18,5 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
 
     List<Notificacion> findAllByAUsuarioIdAndFechaNotificacionGreaterThan(Long aUsuarioId, Date fecha);
 
-
-    @Transactional
-    @Modifying
-    @Query("UPDATE Notificacion SET fechaVistaNotificacion = :date WHERE id = :id")
-    void updateSeenDate(@Param("id") Long id, @Param("date") Date date);
+    Optional<Notificacion> findById(long id);
 }
