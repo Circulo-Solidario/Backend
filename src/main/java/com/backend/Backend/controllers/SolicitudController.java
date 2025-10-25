@@ -1,5 +1,6 @@
 package com.backend.Backend.controllers;
 
+import com.backend.Backend.dtos.solicitud.EstadoDTO;
 import com.backend.Backend.dtos.solicitud.SolicitudDTO;
 import com.backend.Backend.dtos.solicitud.SolicitudResponseDTO;
 import com.backend.Backend.mappers.SolicitudMapper;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/productosSolicitados")
+@RequestMapping("/api/solicitudes")
 @RequiredArgsConstructor
 public class SolicitudController {
     private final SolicitudService solicitudService;
@@ -70,12 +71,12 @@ public class SolicitudController {
 
     @CrossOrigin
     @PatchMapping("/cambiar-estado/{id}")
-    public ResponseEntity<Solicitud> cambiarEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoSolicitud estado) {
+    public ResponseEntity<Solicitud> cambiarEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoDTO estado) {
         Optional<Solicitud> solicitud = solicitudService.findById(id);
         if(solicitud.isEmpty()){
             return ResponseEntity.notFound().build();
         }
-        Solicitud solicitudCambio = solicitudService.cambiarEstado(id, estado);
+        Solicitud solicitudCambio = solicitudService.cambiarEstado(id, estado.getEstado());
         return ResponseEntity.ok(solicitudCambio);
     }
 
