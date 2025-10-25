@@ -21,6 +21,7 @@ public class UsuarioDTO {
     private String nombreApellido;
     private String alias;
     private String correo;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date fechaNacimiento;
     private String urlImagen;
     private Boolean activo;

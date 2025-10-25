@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,15 +34,14 @@ public class ProductoController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) Long categoriaId) {
-        Optional<Categoria> categoria = categoriaService.findById(categoriaId);
-        if(categoria.isEmpty()){
-            return ResponseEntity.badRequest().build();
+        if(categoriaId != null) {
+            Optional<Categoria> categoria = categoriaService.findById(categoriaId);
+            if(categoria.isEmpty()){
+                return ResponseEntity.badRequest().build();
+            }
         }
         Pageable pageable = PageRequest.of(page, size);
         Page<Producto> productos = productoService.findByFilters(nombre, categoriaId, pageable);
-        if(productos.isEmpty()){
-            return ResponseEntity.noContent().build();
-        }
         return ResponseEntity.ok(productos);
     }
 
@@ -49,7 +49,7 @@ public class ProductoController {
     @GetMapping("/{id}")
     public ResponseEntity<Producto> getProductoById(@PathVariable Long id) {
         Optional<Producto> producto = productoService.findById(id);
-        return producto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return producto.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @CrossOrigin
@@ -61,12 +61,13 @@ public class ProductoController {
             return ResponseEntity.badRequest().build();
         }
         Producto producto = new Producto();
-        producto.setNombre(producto.getNombre());
+        producto.setNombre(dto.getNombre());
         producto.setCategoria(categoria.get());
         producto.setDescripcion(dto.getDescripcion());
         producto.setUsuario(usuario.get());
         producto.setUrlImagen(dto.getUrlImagen());
         producto.setEstado(EstadoProducto.DISPONIBLE);
+        producto.setSolicitantes(new ArrayList<>());
         Producto savedProducto = productoService.save(producto);
         return ResponseEntity.ok(savedProducto);
     }
@@ -81,7 +82,7 @@ public class ProductoController {
             return ResponseEntity.badRequest().build();
         }
         Producto productoActual = existingProducto.get();
-        productoActual.setNombre(productoActual.getNombre());
+        productoActual.setNombre(dto.getNombre());
         productoActual.setCategoria(categoria.get());
         productoActual.setDescripcion(dto.getDescripcion());
         productoActual.setUsuario(usuario.get());

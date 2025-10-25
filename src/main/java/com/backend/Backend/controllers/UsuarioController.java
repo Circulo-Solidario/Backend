@@ -38,7 +38,7 @@ public class UsuarioController {
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> getUsuarioById(@PathVariable Long id) {
         Optional<Usuario> usuario = usuarioService.getUsuarioById(id);
-        return usuario.map(value -> ResponseEntity.ok(usuarioMapper.mapToDto(value))).orElseGet(() -> ResponseEntity.notFound().build());
+        return usuario.map(value -> ResponseEntity.ok(usuarioMapper.mapToDto(value))).orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @CrossOrigin
@@ -47,7 +47,7 @@ public class UsuarioController {
         Optional<Usuario> usuario = usuarioService.getUsuarioByCorreo(email);
         return usuario
                 .map(value -> ResponseEntity.ok(usuarioMapper.mapToDto(value)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.noContent().build());
     }
 
     @CrossOrigin
@@ -70,11 +70,13 @@ public class UsuarioController {
             usuario.setTipoUsuario(usuarioDto.getTipoUsuario());
             usuario.setValidado(false);
 
-            List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
-            if (roles.isEmpty()) {
-                return ResponseEntity.badRequest().body(new ErrorResponse("Alguno de los roles no existe"));
+            if(usuarioDto.getRoles() != null) {
+                List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
+                if (roles.isEmpty()) {
+                    return ResponseEntity.badRequest().body(new ErrorResponse("Alguno de los roles no existe"));
+                }
+                usuario.setRoles(roles);
             }
-            usuario.setRoles(roles);
 
             UsuarioDTO createdUsuario = usuarioMapper.convertUsuarioToDTO(usuarioService.createUsuario(usuario));
             return ResponseEntity.ok(createdUsuario);

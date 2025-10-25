@@ -1,6 +1,8 @@
 package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.solicitud.SolicitudDTO;
+import com.backend.Backend.dtos.solicitud.SolicitudResponseDTO;
+import com.backend.Backend.mappers.SolicitudMapper;
 import com.backend.Backend.models.*;
 import com.backend.Backend.models.enums.EstadoSolicitud;
 import com.backend.Backend.services.ProductoService;
@@ -22,27 +24,28 @@ public class SolicitudController {
     private final SolicitudService solicitudService;
     private final ProductoService productoService;
     private final UsuarioService usuarioService;
+    private final SolicitudMapper solicitudMapper;
 
     @CrossOrigin
     @GetMapping
-    public ResponseEntity<List<Solicitud>> getAllSolicitudes(@RequestParam(required = false) Long deUsuario, @RequestParam(required = false) Long aUsuario) {
+    public ResponseEntity<List<SolicitudResponseDTO>> getAllSolicitudes(@RequestParam(required = false) Long deUsuario, @RequestParam(required = false) Long aUsuario) {
         if (deUsuario != null && aUsuario != null) {
             return ResponseEntity.badRequest().build();
         }
         if(deUsuario != null){
-            return ResponseEntity.ok(solicitudService.findSolicitudesDeUsuario(deUsuario));
+            return ResponseEntity.ok(solicitudService.findSolicitudesDeUsuario(deUsuario).stream().map(solicitudMapper::entityToSolicitudResponseDTO).toList());
         }
         if(aUsuario != null){
-            return ResponseEntity.ok(solicitudService.findSolicitudesAUsuario(aUsuario));
+            return ResponseEntity.ok(solicitudService.findSolicitudesAUsuario(aUsuario).stream().map(solicitudMapper::entityToSolicitudResponseDTO).toList());
         }
-        return ResponseEntity.ok(solicitudService.findAll());
+        return ResponseEntity.ok(solicitudService.findAll().stream().map(solicitudMapper::entityToSolicitudResponseDTO).toList());
     }
 
     @CrossOrigin
     @GetMapping("/{id}")
-    public ResponseEntity<Solicitud> getSolicitudById(@PathVariable Long id) {
+    public ResponseEntity<SolicitudResponseDTO> getSolicitudById(@PathVariable Long id) {
         Optional<Solicitud> solicitud = solicitudService.findById(id);
-        return solicitud.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return solicitud.map(value -> ResponseEntity.ok(solicitudMapper.entityToSolicitudResponseDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @CrossOrigin
@@ -70,7 +73,7 @@ public class SolicitudController {
     public ResponseEntity<Solicitud> cambiarEstadoSolicitud(@PathVariable Long id, @RequestBody EstadoSolicitud estado) {
         Optional<Solicitud> solicitud = solicitudService.findById(id);
         if(solicitud.isEmpty()){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
         Solicitud solicitudCambio = solicitudService.cambiarEstado(id, estado);
         return ResponseEntity.ok(solicitudCambio);
@@ -81,7 +84,7 @@ public class SolicitudController {
     public ResponseEntity<Void> deleteSolicitud(@PathVariable Long id) {
         Optional<Solicitud> solicitud = solicitudService.findById(id);
         if(solicitud.isEmpty()){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
         solicitudService.deleteById(id);
         return ResponseEntity.noContent().build();

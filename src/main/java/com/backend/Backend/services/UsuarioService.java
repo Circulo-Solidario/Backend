@@ -37,7 +37,9 @@ public class UsuarioService {
 
     @Transactional
     public Usuario createUsuario(Usuario nuevoUsuario) {
-        nuevoUsuario.setContrasena(passwordEncoder.encode(nuevoUsuario.getContrasena()));
+        if(nuevoUsuario.getContrasena() != null){
+            nuevoUsuario.setContrasena(passwordEncoder.encode(nuevoUsuario.getContrasena()));
+        }
         return usuarioRepository.save(nuevoUsuario);
     }
 

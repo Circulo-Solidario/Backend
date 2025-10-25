@@ -13,4 +13,11 @@ public class CategoriaMapper {
                 .descripcion(dto.getDescripcion())
                 .build();
     }
+
+    public CategoriaDTO convertToDTO(Categoria entity) {
+        return CategoriaDTO.builder()
+                .nombre(entity.getNombre())
+                .descripcion(entity.getDescripcion())
+                .build();
+    }
 }
