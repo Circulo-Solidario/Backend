@@ -1,10 +1,7 @@
 package com.backend.Backend.mappers;
 
-import com.backend.Backend.dtos.categoria.CategoriaDTO;
 import com.backend.Backend.dtos.producto.ProductoSinLolicitudesDTO;
 import com.backend.Backend.models.Producto;
-import com.backend.Backend.models.Usuario;
-import com.backend.Backend.models.enums.EstadoProducto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

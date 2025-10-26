@@ -1,17 +1,12 @@
 package com.backend.Backend.services;
 
-import com.backend.Backend.dtos.usuario.UsuarioDTO;
-import com.backend.Backend.mappers.UsuarioMapper;
-import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.Usuario;
-import com.backend.Backend.repositories.RolesRepository;
 import com.backend.Backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,8 +14,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
-    private final UsuarioMapper usuarioMapper;
-    private final RolesRepository rolesRepository;
     private final PasswordEncoder passwordEncoder;
 
     public List<Usuario> getAllUsuarios() {

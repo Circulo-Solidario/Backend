@@ -7,7 +7,6 @@ import com.backend.Backend.models.enums.TipoUsuario;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.repositories.RolesRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class UsuarioMapper {
-    private final PasswordEncoder passwordEncoder;
     private final RolesRepository rolesRepository;
 
     public UsuarioDTO mapToDto(Usuario usuario) {

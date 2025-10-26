@@ -1,14 +1,11 @@
 package com.backend.Backend.services;
 
-import com.backend.Backend.dtos.solicitud.SolicitudDTO;
 import com.backend.Backend.models.enums.EstadoProducto;
 import com.backend.Backend.models.Producto;
 import com.backend.Backend.models.Solicitud;
-import com.backend.Backend.models.Usuario;
 import com.backend.Backend.models.enums.EstadoSolicitud;
 import com.backend.Backend.repositories.ProductoRepository;
 import com.backend.Backend.repositories.SolicitudRepository;
-import com.backend.Backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.backend.Backend.exceptions.ResourceNotFoundException;
@@ -24,18 +21,17 @@ import java.util.ArrayList;
 public class SolicitudService {
     private final SolicitudRepository solicitudRepository;
     private final ProductoRepository productoRepository;
-    private final UsuarioRepository usuarioRepository;
 
     public List<Solicitud> findAll() {
         return solicitudRepository.findAll();
     }
 
-    public List<Solicitud> findSolicitudesDeUsuario(Long deUsuario) {
-        return solicitudRepository.findAllByDeUsuario_Id(deUsuario);
+    public List<Solicitud> findSolicitudesDeSolicitante(Long deUsuario) {
+        return solicitudRepository.findAllBySolicitanteId(deUsuario);
     }
 
-    public List<Solicitud> findSolicitudesAUsuario(Long aUsuario) {
-        return solicitudRepository.findAllByAusuario_Id(aUsuario);
+    public List<Solicitud> findSolicitudesDeDonador(Long aUsuario) {
+        return solicitudRepository.findAllByDonadorId(aUsuario);
     }
 
     public Optional<Solicitud> findById(Long id) {
@@ -51,8 +47,8 @@ public class SolicitudService {
         if (productoSolicitado.getSolicitantes() == null) {
             productoSolicitado.setSolicitantes(new ArrayList<>());
         }
-        if (!productoSolicitado.getSolicitantes().contains(solicitud.getDeUsuario())) {
-            productoSolicitado.getSolicitantes().add(solicitud.getDeUsuario());
+        if (!productoSolicitado.getSolicitantes().contains(solicitud.getSolicitante())) {
+            productoSolicitado.getSolicitantes().add(solicitud.getSolicitante());
         }
         productoRepository.save(productoSolicitado);
         return solicitudRepository.save(solicitud);

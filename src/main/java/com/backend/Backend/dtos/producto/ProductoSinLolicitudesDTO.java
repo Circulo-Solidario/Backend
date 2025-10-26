@@ -3,7 +3,6 @@ package com.backend.Backend.dtos.producto;
 import com.backend.Backend.dtos.categoria.CategoriaDTO;
 import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
 import com.backend.Backend.models.enums.EstadoProducto;
-import com.backend.Backend.models.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,5 @@
 package com.backend.Backend.dtos.usuario;
 
-import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.enums.TipoUsuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,9 +1,7 @@
 package com.backend.Backend.mappers;
 
 import com.backend.Backend.dtos.notificacion.ReceivedNotificacionDTO;
-import com.backend.Backend.dtos.notificacion.SendNotificacion;
 import com.backend.Backend.models.Notificacion;
-import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

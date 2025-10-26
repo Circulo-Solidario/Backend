@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class MensajeRequest {
     private String mensaje;
     private Long idUsuario;
-    private String sala;
+    private Long idSala;
 }

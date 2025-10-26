@@ -1,7 +1,5 @@
 package com.backend.Backend.dtos.usuario;
 
-import com.backend.Backend.models.enums.TipoUsuario;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

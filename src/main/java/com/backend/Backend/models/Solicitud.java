@@ -21,12 +21,12 @@ public class Solicitud {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "de_usuario")
-    private Usuario deUsuario;
+    @JoinColumn(name = "id_usuario_solicitante")
+    private Usuario solicitante;
 
     @ManyToOne
-    @JoinColumn(name = "a_usuario")
-    private Usuario ausuario;
+    @JoinColumn(name = "id_usuario_donador")
+    private Usuario donador;
 
     @ManyToOne
     @JoinColumn(name = "id_producto")

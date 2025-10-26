@@ -30,28 +30,11 @@ public class NotificacionController {
     private final UsuarioService usuarioService;
     private final NotificacionMapper notificacionMapper;
 
-    @GetMapping("/{user}/notseen")
-    public ResponseEntity<List<ReceivedNotificacionDTO>> getNotSeenNotification(@PathVariable Long user) {
-        try {
-            List<Notificacion> notifications = notificacionesService.getNotSeenNotificationFromUser(user);
-            if (notifications.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            List<ReceivedNotificacionDTO> receivedNotifications = notifications.stream()
-                    .map(notificacionMapper::mapEntityToReceiveNotificacion)
-                    .collect(Collectors.toList());
-            return ResponseEntity.ok(receivedNotifications);
-        }
-        catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @GetMapping("/{user}")
-    public ResponseEntity<List<ReceivedNotificacionDTO>> getNotifications(@PathVariable Long user, @RequestParam String date) {
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<ReceivedNotificacionDTO>> getNotifications(@PathVariable Long id, @RequestParam String date) {
         try {
             Date fromDate = Date.from(Instant.parse(date));
-            List<Notificacion> notifications = notificacionesService.getAllNotificationsFromUserFromDate(user, fromDate);
+            List<Notificacion> notifications = notificacionesService.getAllNotificationsFromUserFromDate(id, fromDate);
             if (notifications.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
@@ -61,10 +44,10 @@ public class NotificacionController {
         }
     }
 
-    @PatchMapping("/markseen")
-    public ResponseEntity<ReceivedNotificacionDTO> markSeenNotification(@RequestBody Long notificationId) {
+    @PatchMapping("/{id}/marcar-vista")
+    public ResponseEntity<ReceivedNotificacionDTO> markSeenNotification(@PathVariable Long id) {
         try {
-            Optional<Notificacion> notificacion = notificacionesService.getNotificationById(notificationId);
+            Optional<Notificacion> notificacion = notificacionesService.getNotificationById(id);
             if(notificacion.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
@@ -77,7 +60,7 @@ public class NotificacionController {
         }
     }
 
-    @PostMapping("/push")
+    @PostMapping("/enviar")
     public ResponseEntity<Notificacion> pushNotification(@RequestBody SendNotificacion notification) {
         try {
             Optional<Usuario> deUsuario = usuarioService.getUsuarioById(notification.getDeUsuario());

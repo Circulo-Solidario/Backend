@@ -1,6 +1,5 @@
 package com.backend.Backend.dtos.producto;
 
-import com.backend.Backend.models.enums.EstadoProducto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,35 +1,35 @@
 package com.backend.Backend.services;
 
-import com.backend.Backend.models.Producto;
 import com.backend.Backend.models.Sala;
-import com.backend.Backend.models.Usuario;
 import com.backend.Backend.repositories.SalasRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class SalasService {
     private final SalasRepository salasRepository;
-    private final ProductoService productoService;
-    private final UsuarioService usuarioService;
 
-
-    public String searchRoom(Long user1, Long user2, Long productId) {
-        return salasRepository.getRoomFromUsers(user1, user2, productId);
+    public Sala save(Sala sala) {
+        return salasRepository.save(sala);
     }
 
-    public String createRoom(Long user1, Long user2, Long productId) {
-        Usuario usuario1 = usuarioService.getUsuarioById(user1).get();
-        Usuario usuario2 = usuarioService.getUsuarioById(user2).get();
-        Producto producto = productoService.findById(productId).get();
-        return salasRepository.save(new Sala(usuario1, usuario2, producto)).getNombreSala();
+    public Optional<Sala> findSalaBySolicitudId(Long solicitudId){
+        return salasRepository.findBySolicitudId(solicitudId);
     }
 
-    public Sala findRoomByName(String nombreSala){
-        Optional<Sala> sala = salasRepository.findByNombreSala(nombreSala);
-        return sala.orElse(null);
+    public List<Sala> findSalaBySolicitanteId(Long solicitanteId){
+        return salasRepository.findAllBySolicitudSolicitanteId(solicitanteId);
+    }
+
+    public List<Sala> findSalaByDondadorId(Long dondadorId){
+        return salasRepository.findAllBySolicitudDonadorId(dondadorId);
+    }
+
+    public Optional<Sala> findSalaById(Long id){
+        return salasRepository.findById(id);
     }
 }

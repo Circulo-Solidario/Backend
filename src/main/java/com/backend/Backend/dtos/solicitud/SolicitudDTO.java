@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SolicitudDTO {
-    private Long deUsuario;
-    private Long aUsuario;
+    private Long idSolicitante;
+    private Long idDondador;
     private Long idProducto;
     private String mensaje;
 }
