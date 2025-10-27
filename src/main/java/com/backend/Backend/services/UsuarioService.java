@@ -98,6 +98,21 @@ public class UsuarioService {
         }
     }
 
+    @Transactional
+    public Usuario validarOrganizacion(Long id) {
+        Optional<Usuario> optionalUsuario = usuarioRepository.findById(id);
+        if (optionalUsuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario con ID " + id + " no encontrado.");
+        }
+        Usuario usuario = optionalUsuario.get();
+        if (usuario.getTipoUsuario() != null && usuario.getTipoUsuario().name().equals("ORGANIZACION")) {
+            usuario.setValidado(true);
+            return usuarioRepository.save(usuario);
+        } else {
+            throw new IllegalArgumentException("Solo las organizaciones pueden ser validadas con este endpoint.");
+        }
+    }
+
     @Transactional(readOnly = true)
     public Boolean existeUsuarioByCorreo(String email) {
         return usuarioRepository.findByCorreo(email).isPresent();
