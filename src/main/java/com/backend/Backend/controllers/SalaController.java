@@ -27,15 +27,15 @@ public class SalaController {
     }
 
     @CrossOrigin
-    @GetMapping("/dondador/{id}")
-    public ResponseEntity<List<SalaResponseDTO>> findSalasByDondador(@RequestParam Long id) {
+    @GetMapping("/donador/{id}")
+    public ResponseEntity<List<SalaResponseDTO>> findSalasByDondador(@PathVariable Long id) {
         List<Sala> salas = salasService.findSalaByDondadorId(id);
         return ResponseEntity.ok(salas.stream().map(salaMapper::entityToSalaResponseDTO).toList());
     }
 
     @CrossOrigin
     @GetMapping("/solicitante/{id}")
-    public ResponseEntity<List<SalaResponseDTO>> findSalasBySolicitante(@RequestParam Long id){
+    public ResponseEntity<List<SalaResponseDTO>> findSalasBySolicitante(@PathVariable Long id){
         List<Sala> salas = salasService.findSalaBySolicitanteId(id);
         return ResponseEntity.ok(salas.stream().map(salaMapper::entityToSalaResponseDTO).toList());
     }

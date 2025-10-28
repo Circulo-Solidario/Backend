@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MensajesRepository extends JpaRepository<Mensaje, Long> {
-    List<Mensaje> findAllBySalaIdOrderByFechaMensajeDesc(Long salaId);
+    List<Mensaje> findAllBySalaIdOrderByFechaMensajeAsc(Long salaId);
 }

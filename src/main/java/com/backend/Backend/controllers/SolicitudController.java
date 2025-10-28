@@ -58,7 +58,7 @@ public class SolicitudController {
     public ResponseEntity<Solicitud> crear(@RequestBody SolicitudDTO dto) {
         Optional<Producto> producto = productoService.findById(dto.getIdProducto());
         Optional<Usuario> deUsuario = usuarioService.getUsuarioById(dto.getIdSolicitante());
-        Optional<Usuario> aUsuario = usuarioService.getUsuarioById(dto.getIdSolicitante());
+        Optional<Usuario> aUsuario = usuarioService.getUsuarioById(dto.getIdDonador());
         if(producto.isEmpty() || deUsuario.isEmpty() || aUsuario.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }

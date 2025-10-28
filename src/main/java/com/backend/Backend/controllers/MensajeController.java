@@ -1,6 +1,9 @@
 package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.mensaje.MensajeRequest;
+import com.backend.Backend.dtos.mensaje.MensajeResponse;
+import com.backend.Backend.mappers.MensajeMapper;
+import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Mensaje;
 import com.backend.Backend.models.Sala;
 import com.backend.Backend.models.Usuario;
@@ -29,9 +32,11 @@ public class MensajeController {
     private final MensajesService mensajesService;
     private final UsuarioService usuarioService;
     private final SalasService salasService;
+    private final MensajeMapper mensajeMapper;
+    private final UsuarioMapper usuarioMapper;
 
     @PostMapping("/enviar")
-    public ResponseEntity<Mensaje> sendMessage(@RequestBody MensajeRequest mensaje) {
+    public ResponseEntity<MensajeResponse> sendMessage(@RequestBody MensajeRequest mensaje) {
         Optional<Usuario> usuario = usuarioService.getUsuarioById(mensaje.getIdUsuario());
         Optional<Sala> sala =  salasService.findSalaById(mensaje.getIdSala());
 
@@ -54,7 +59,7 @@ public class MensajeController {
         Map<String, Object> mensajeData = new HashMap<>();
         mensajeData.put("id", mensajeGuardado.getId());
         mensajeData.put("mensaje", mensajeGuardado.getMensaje());
-        mensajeData.put("usuario", mensajeGuardado.getUsuario());
+        mensajeData.put("usuario", usuarioMapper.mapEntityToUsuarioSimple(mensajeGuardado.getUsuario()));
         mensajeData.put("sala", mensajeGuardado.getSala().getNombreSala());
         mensajeData.put("fechaMensaje", mensajeGuardado.getFechaMensaje());
 
@@ -64,14 +69,14 @@ public class MensajeController {
                 mensajeData
         );
 
-        return ResponseEntity.ok(mensajeGuardado);
+        return ResponseEntity.ok(mensajeMapper.entityToResponseDto(mensajeGuardado));
     }
 
     @CrossOrigin
     @GetMapping("/sala/{id}")
-    public ResponseEntity<List<Mensaje>> findAllBySala(@PathVariable Long id) {
+    public ResponseEntity<List<MensajeResponse>> findAllBySala(@PathVariable Long id) {
         List<Mensaje> mensajes = mensajesService.getAllMessagesBySala(id);
-        return ResponseEntity.ok(mensajes);
+        return ResponseEntity.ok(mensajes.stream().map(mensajeMapper::entityToResponseDto).toList());
     }
 }
 

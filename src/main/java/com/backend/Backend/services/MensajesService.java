@@ -17,6 +17,6 @@ public class MensajesService {
     }
 
     public List<Mensaje> getAllMessagesBySala(Long salaId) {
-        return messageRepository.findAllBySalaIdOrderByFechaMensajeDesc(salaId);
+        return messageRepository.findAllBySalaIdOrderByFechaMensajeAsc(salaId);
     }
 }

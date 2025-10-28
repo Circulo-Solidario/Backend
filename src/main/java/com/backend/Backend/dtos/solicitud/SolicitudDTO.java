@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SolicitudDTO {
     private Long idSolicitante;
-    private Long idDondador;
+    private Long idDonador;
     private Long idProducto;
     private String mensaje;
 }
