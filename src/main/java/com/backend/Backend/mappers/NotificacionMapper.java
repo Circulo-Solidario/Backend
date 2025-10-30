@@ -1,25 +1,23 @@
 package com.backend.Backend.mappers;
 
-import com.backend.Backend.dtos.SendNotificacion;
+import com.backend.Backend.dtos.notificacion.ReceivedNotificacionDTO;
 import com.backend.Backend.models.Notificacion;
-import com.backend.Backend.services.ProductoService;
-import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
-import java.util.Date;
 
 @Component
 @RequiredArgsConstructor
 public class NotificacionMapper {
-    private final UsuarioService usuarioService;
+    private final UsuarioMapper usuarioMapper;
 
-    public Notificacion mapToEntity(SendNotificacion sendNotificacion) {
-        return Notificacion.builder()
-                .AUsuario(usuarioService.getUsuarioById(sendNotificacion.getAUsuario()))
-                .deUsuario(usuarioService.getUsuarioById(sendNotificacion.getDeUsuario()))
-                .mensaje(sendNotificacion.getMensaje())
+    public ReceivedNotificacionDTO mapEntityToReceiveNotificacion(Notificacion notificacion) {
+        return ReceivedNotificacionDTO.builder()
+                .id(notificacion.getId())
+                .mensaje(notificacion.getMensaje())
+                .deUsuario(usuarioMapper.mapEntityToUsuarioSimple(notificacion.getDeUsuario()))
+                .fechaNotificacion(notificacion.getFechaNotificacion())
+                .fechaVistaNotificacion(notificacion.getFechaVistaNotificacion())
+                .tipoNotificacion(notificacion.getTipoNotificacion())
                 .build();
     }
 }

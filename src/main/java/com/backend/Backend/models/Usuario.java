@@ -1,5 +1,6 @@
 package com.backend.Backend.models;
 
+import com.backend.Backend.models.enums.TipoUsuario;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -50,5 +51,5 @@ public class Usuario {
     private List<Rol> roles;
 
     @Column(name = "validado", nullable = false)
-    private Boolean validado = true;
+    private Boolean validado = false;
 }

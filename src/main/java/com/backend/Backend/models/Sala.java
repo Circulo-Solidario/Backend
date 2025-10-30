@@ -1,5 +1,6 @@
 package com.backend.Backend.models;
 
+import com.backend.Backend.models.enums.EstadoSala;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,13 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {"user1", "user2", "product_id"}
-                )
-        }
-)
+@Table
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,28 +21,15 @@ public class Sala {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario1", nullable = false)
-    private Usuario usuario1;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario2", nullable = false)
-    private Usuario usuario2;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_producto", nullable = false)
-    private Producto producto;
+    @OneToOne
+    @JoinColumn(name = "solicitud_id")
+    private Solicitud solicitud;
 
     @Column(name = "nombre_sala", unique = true, nullable = false)
     private String nombreSala;
 
+    private EstadoSala estado;
+
     @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Mensaje> mensajes = new ArrayList<>();//Mensajes de la sala
-
-    public Sala(Usuario usuario1, Usuario usuario2, Producto producto) {
-        this.usuario1 = usuario1;
-        this.usuario2 = usuario2;
-        this.producto = producto;
-        this.nombreSala = "rm-" + usuario1.getId() + "-" + usuario2.getId() + "-" + producto.getId();
-    }
 }

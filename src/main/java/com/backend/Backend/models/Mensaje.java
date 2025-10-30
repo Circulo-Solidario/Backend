@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Data
@@ -35,4 +34,7 @@ public class Mensaje {
 
     @Column(name = "fecha_mensaje", nullable = false)
     private Date fechaMensaje;
+
+    @Column(name = "fecha_visto_mensaje")
+    private Date fechaVistoMensaje;
 }

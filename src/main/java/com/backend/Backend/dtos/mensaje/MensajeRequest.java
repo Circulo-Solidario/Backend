@@ -1,4 +1,4 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.mensaje;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class MensajeRequest {
     private String mensaje;
     private Long idUsuario;
-    private String sala;
+    private Long idSala;
 }

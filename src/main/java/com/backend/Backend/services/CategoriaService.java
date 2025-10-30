@@ -3,7 +3,6 @@ package com.backend.Backend.services;
 import com.backend.Backend.models.Categoria;
 import com.backend.Backend.repositories.CategoriaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

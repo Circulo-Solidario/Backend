@@ -1,22 +1,17 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.solicitud;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class CreateRoomDTO {
-    @NotNull
-    private Long usuario1;
-    @NotNull
-    private Long usuario2;
-    @NotNull
+public class SolicitudDTO {
+    private Long idSolicitante;
+    private Long idDonador;
     private Long idProducto;
-
     private String mensaje;
 }

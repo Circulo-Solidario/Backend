@@ -1,12 +1,10 @@
 package com.backend.Backend.services;
 
 import com.backend.Backend.models.Usuario;
-import com.backend.Backend.dtos.UsuarioResponseDTO;
 import com.backend.Backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
 

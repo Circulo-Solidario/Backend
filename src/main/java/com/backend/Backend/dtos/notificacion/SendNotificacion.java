@@ -1,6 +1,6 @@
-package com.backend.Backend.dtos;
+package com.backend.Backend.dtos.notificacion;
 
-import com.backend.Backend.models.TipoNotificaciones;
+import com.backend.Backend.models.enums.TipoNotificaciones;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

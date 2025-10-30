@@ -5,16 +5,16 @@ import com.backend.Backend.repositories.NotificacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class NotificacionesService {
     private final NotificacionRepository notificationsRepository;
 
-    public Notificacion pushNotification(Notificacion notification) {
+    public Notificacion saveNotificacion(Notificacion notification) {
         return notificationsRepository.save(notification);
     }
 
@@ -26,8 +26,8 @@ public class NotificacionesService {
         return notificationsRepository.findAllByAUsuarioIdAndFechaNotificacionGreaterThan(userId, date);
     }
 
-    public void markSeenNotification(Long id, Date date) {
-        notificationsRepository.updateSeenDate(id, date);
+    public Optional<Notificacion> getNotificationById(Long id) {
+        return notificationsRepository.findById(id);
     }
 
 }
