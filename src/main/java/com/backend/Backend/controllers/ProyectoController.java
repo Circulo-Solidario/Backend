@@ -13,9 +13,12 @@ import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -57,5 +60,24 @@ public class ProyectoController {
         });
         proyecto.setImagenes(imagenes);
         return ResponseEntity.ok(proyectoMapper.entityToResponse(proyectoService.save(proyecto)));
+    }
+
+    @CrossOrigin
+    @GetMapping()
+    public ResponseEntity<List<ProyectoResponse>> getProyectos(@RequestParam(required = false) Long idOrganizacion, @RequestParam(required = false) EstadoProyecto estado, @RequestParam(required = false) String nombre){
+        if(idOrganizacion != null){
+        Optional<Usuario> organizacion = usuarioService.getUsuarioById(idOrganizacion);
+        if(organizacion.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        }
+        return ResponseEntity.ok(proyectoService.getProyectos(idOrganizacion, estado, nombre).stream().map(proyectoMapper::entityToResponse).toList());
+    }
+
+    @CrossOrigin
+    @GetMapping("/{id}")
+    public ResponseEntity<ProyectoResponse> getProyecto(@PathVariable Long id){
+        Optional<Proyecto> proyecto = proyectoService.getProyecto(id);
+        return proyecto.map(value -> ResponseEntity.ok(proyectoMapper.entityToResponse(value))).orElseGet(() -> ResponseEntity.noContent().build());
     }
 }
