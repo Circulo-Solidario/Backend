@@ -143,4 +143,15 @@ public class UsuarioController {
     public ResponseEntity<List<UsuarioDTO>> getUsuariosByEstado(@RequestParam(required = false) Boolean activo) {
         return ResponseEntity.ok(usuarioService.getUsuariosByActivo(activo).stream().map(usuarioMapper::mapToDto).toList());
     }
+
+    @CrossOrigin
+    @PatchMapping("/validar/{id}")
+    public ResponseEntity<?> validarOrganizacion(@PathVariable Long id) {
+        try {
+            Usuario usuario = usuarioService.validarOrganizacion(id);
+            return ResponseEntity.ok(usuarioMapper.mapToDto(usuario));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
 }

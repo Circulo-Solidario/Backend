@@ -42,7 +42,11 @@ public class UsuarioMapper {
         usuario.setActivo(dto.getActivo() != null ? dto.getActivo() : true);
         usuario.setUrlImagen(dto.getUrlImagen());
         usuario.setTipoUsuario(dto.getTipoUsuario() != null ? dto.getTipoUsuario() : TipoUsuario.USUARIO);
-        usuario.setValidado(dto.getValidado());
+        if (dto.getValidado() != null) {
+            usuario.setValidado(dto.getValidado());
+        } else {
+            usuario.setValidado(usuario.getTipoUsuario() == TipoUsuario.ORGANIZACION ? false : true);
+        }
 
         if (usuario.getTipoUsuario() == TipoUsuario.USUARIO) {
             List<Rol> roles = new ArrayList<>();
