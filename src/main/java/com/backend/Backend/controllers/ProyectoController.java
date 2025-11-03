@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -79,5 +80,40 @@ public class ProyectoController {
     public ResponseEntity<ProyectoResponse> getProyecto(@PathVariable Long id){
         Optional<Proyecto> proyecto = proyectoService.getProyecto(id);
         return proyecto.map(value -> ResponseEntity.ok(proyectoMapper.entityToResponse(value))).orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @CrossOrigin
+    @PutMapping("/{id}")
+    public ResponseEntity<ProyectoResponse> updateProyecto(@PathVariable Long id, @RequestBody ProyectoRequest proyectoBody) {
+        Optional<Proyecto> proyectoOptional = proyectoService.getProyecto(id);
+        if (proyectoOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Proyecto proyecto = proyectoOptional.get();
+
+        Optional<Usuario> organizacion = usuarioService.getUsuarioById(proyectoBody.getIdOrganizacion());
+        if (organizacion.isEmpty() || organizacion.get().getTipoUsuario() != TipoUsuario.ORGANIZACION || proyectoBody.getImagenes() == null || proyectoBody.getImagenes().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Se actualizan todos los campos (menos recaudado, estado ni fechaInicio)
+        proyecto.setNombre(proyectoBody.getNombre());
+        proyecto.setDescripcion(proyectoBody.getDescripcion());
+        proyecto.setOrganizacion(organizacion.get());
+        proyecto.setObjetivo(proyectoBody.getObjetivo());
+        proyecto.setFechaFin(proyectoBody.getFechaFin());
+
+        List<ImagenesProyecto> imagenes = new ArrayList<>();
+        proyectoBody.getImagenes().forEach(url -> {
+            ImagenesProyecto imagen = new ImagenesProyecto();
+            imagen.setUrlImagen(url);
+            imagen.setProyecto(proyecto);
+            imagenes.add(imagen);
+        });
+        proyecto.setImagenes(imagenes);
+
+        Proyecto actualizado = proyectoService.save(proyecto);
+        return ResponseEntity.ok(proyectoMapper.entityToResponse(actualizado));
     }
 }
