@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -103,6 +104,7 @@ public class ProyectoController {
         proyecto.setOrganizacion(organizacion.get());
         proyecto.setObjetivo(proyectoBody.getObjetivo());
         proyecto.setFechaFin(proyectoBody.getFechaFin());
+        proyecto.setEstado(proyecto.getEstado());
 
         List<ImagenesProyecto> imagenes = new ArrayList<>();
         proyectoBody.getImagenes().forEach(url -> {
@@ -115,5 +117,16 @@ public class ProyectoController {
 
         Proyecto actualizado = proyectoService.save(proyecto);
         return ResponseEntity.ok(proyectoMapper.entityToResponse(actualizado));
+    }
+
+    @CrossOrigin
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProyecto(@PathVariable Long id) {
+        Optional<Proyecto> proyecto = proyectoService.getProyecto(id);
+        if (proyecto.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        proyectoService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
