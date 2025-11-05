@@ -1,8 +1,10 @@
 package com.backend.Backend.services;
 
 import com.backend.Backend.models.Usuario;
+import com.backend.Backend.models.enums.TipoUsuario;
 import com.backend.Backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,5 +78,20 @@ public class UsuarioService {
             usuarios = usuarioRepository.findAll();
         }
         return usuarios;
+    }
+
+    public List<Usuario> getUsuariosFilters(Boolean activo, TipoUsuario tipoUsuario) {
+        Specification<Usuario> spec = (root, query, cb) -> null;
+
+        if(activo != null){
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("activo"), activo));
+        }
+
+        if(tipoUsuario != null){
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("tipoUsuario"), tipoUsuario));
+        }
+
+        return usuarioRepository.findAll(spec);
     }
 }

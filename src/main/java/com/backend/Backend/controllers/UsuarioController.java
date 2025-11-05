@@ -4,9 +4,11 @@ import com.backend.Backend.dtos.common.ErrorResponse;
 import com.backend.Backend.dtos.usuario.EditarUsuarioDTO;
 import com.backend.Backend.dtos.usuario.NuevoUsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioDTO;
+import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.Usuario;
+import com.backend.Backend.models.enums.TipoUsuario;
 import com.backend.Backend.services.RolService;
 import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
@@ -140,8 +142,8 @@ public class UsuarioController {
 
     @CrossOrigin
     @GetMapping("/filtrar")
-    public ResponseEntity<List<UsuarioDTO>> getUsuariosByEstado(@RequestParam(required = false) Boolean activo) {
-        return ResponseEntity.ok(usuarioService.getUsuariosByActivo(activo).stream().map(usuarioMapper::mapToDto).toList());
+    public ResponseEntity<List<UsuarioSimpleDTO>> getUsuariosFilters(@RequestParam(required = false) Boolean activo, @RequestParam(required = false)TipoUsuario tipoUsuario) {
+        return ResponseEntity.ok(usuarioService.getUsuariosFilters(activo, tipoUsuario).stream().map(usuarioMapper::mapEntityToUsuarioSimple).toList());
     }
 
     @CrossOrigin
