@@ -1,5 +1,6 @@
 package com.backend.Backend.controllers;
 
+import com.backend.Backend.dtos.sala.EstadoSalaDTO;
 import com.backend.Backend.dtos.sala.SalaResponseDTO;
 import com.backend.Backend.mappers.SalaMapper;
 import com.backend.Backend.models.Sala;
@@ -45,5 +46,12 @@ public class SalaController {
     public ResponseEntity<SalaResponseDTO> findSalaById(@PathVariable Long id) {
         Optional<Sala> sala = salasService.findSalaById(id);
         return sala.map(value -> ResponseEntity.ok(salaMapper.entityToSalaResponseDTO(value))).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @CrossOrigin
+    @PatchMapping("/{id}/cambiar-estado")
+    public ResponseEntity<SalaResponseDTO> cambiarEstado(@PathVariable Long id, @RequestBody EstadoSalaDTO estado){
+        Optional<Sala> sala = salasService.findSalaById(id);
+        return sala.map(value -> ResponseEntity.ok(salaMapper.entityToSalaResponseDTO(salasService.cambiarEstado(value, estado.getEstado())))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

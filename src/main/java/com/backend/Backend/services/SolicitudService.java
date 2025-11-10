@@ -27,11 +27,11 @@ public class SolicitudService {
     }
 
     public List<Solicitud> findSolicitudesDeSolicitante(Long deUsuario) {
-        return solicitudRepository.findAllBySolicitanteId(deUsuario);
+        return solicitudRepository.findAllBySolicitanteIdAndEstado(deUsuario, EstadoSolicitud.PENDIENTE);
     }
 
     public List<Solicitud> findSolicitudesDeDonador(Long aUsuario) {
-        return solicitudRepository.findAllByDonadorId(aUsuario);
+        return solicitudRepository.findAllByDonadorIdAndEstado(aUsuario, EstadoSolicitud.PENDIENTE);
     }
 
     public Optional<Solicitud> findById(Long id) {
@@ -58,6 +58,21 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada"));
         solicitud.setEstado(estado);
+        if(estado.equals(EstadoSolicitud.ACEPTADA)){
+            Producto productoSolicitado = solicitud.getProducto();
+            productoSolicitado.setEstado(EstadoProducto.RESERVADO);
+            productoRepository.save(productoSolicitado);
+        }
+        if(estado.equals(EstadoSolicitud.RECHAZADA)){
+            Producto productoSolicitado = solicitud.getProducto();
+            List<Solicitud> solicitudesProducto = solicitudRepository.findAllByProductoIdAndEstadoNot(solicitud.getProducto().getId(), EstadoSolicitud.RECHAZADA);
+            if(!solicitudesProducto.isEmpty()){
+                productoSolicitado.setEstado(EstadoProducto.SOLICITADO);
+            }else{
+                productoSolicitado.setEstado(EstadoProducto.DISPONIBLE);
+            }
+            productoRepository.save(productoSolicitado);
+        }
         return solicitudRepository.save(solicitud);
     }
 

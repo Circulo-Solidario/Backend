@@ -32,7 +32,7 @@ public class DonacionController {
                     .build();
 
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("https://tu-frontend.com/success") //TODO
+                    .success("https://tu-frontend.com/success")
                     .failure("https://tu-frontend.com/failure")
                     .pending("https://tu-frontend.com/pending")
                     .build();
@@ -47,7 +47,6 @@ public class DonacionController {
             Preference preference = client.create(preferenceRequest);
 
             return Map.of("preferenceId", preference.getId());
-
         } catch (Exception e) {
             e.printStackTrace();
             return Map.of("error", e.getMessage());
