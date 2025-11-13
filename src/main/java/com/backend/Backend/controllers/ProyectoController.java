@@ -2,6 +2,7 @@ package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.proyecto.ProyectoRequest;
 import com.backend.Backend.dtos.proyecto.ProyectoResponse;
+import com.backend.Backend.dtos.proyecto.RecaudadoRequest;
 import com.backend.Backend.mappers.ProyectoMapper;
 import com.backend.Backend.models.ImagenesProyecto;
 import com.backend.Backend.models.Proyecto;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -128,5 +130,12 @@ public class ProyectoController {
         }
         proyectoService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @CrossOrigin
+    @PatchMapping("/{id}/actualizar-recaudado")
+    public ResponseEntity<ProyectoResponse> actualizarRecaudado(@PathVariable Long id, @RequestBody RecaudadoRequest recaudado) {
+        Optional<Proyecto> proyecto = proyectoService.getProyecto(id);
+        return proyecto.map(value -> ResponseEntity.ok(proyectoMapper.entityToResponse(proyectoService.actualizarRecaudado(value, recaudado.getRecaudado())))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
