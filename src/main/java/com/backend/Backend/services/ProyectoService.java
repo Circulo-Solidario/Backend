@@ -77,4 +77,8 @@ public class ProyectoService {
         }
         return proyectoRepository.save(proyecto);
     }
+
+    public List<Proyecto> getAllProyectos() {
+        return proyectoRepository.findAll();
+    }
 }

@@ -46,4 +46,8 @@ public class ProductoService {
     public List<Producto> findProductosByUsuarioDonador(Long usuarioId) {
         return productoRepository.findAllByUsuarioId(usuarioId);
     }
+
+    public List<Producto> getAllProductos() {
+        return productoRepository.findAll();
+    }
 }
