@@ -4,6 +4,7 @@ import com.backend.Backend.dtos.usuario.UsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
 import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.enums.TipoUsuario;
+import com.backend.Backend.models.enums.EstadoUsuario;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.repositories.RolesRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class UsuarioMapper {
                 .activo(usuario.getActivo())
                 .validado(usuario.getValidado())
                 .tipoUsuario(usuario.getTipoUsuario())
+                .estado(usuario.getEstado())
                 .roles(usuario.getRoles())
                 .build();
     }
@@ -85,6 +87,7 @@ public class UsuarioMapper {
         dto.setActivo(usuario.getActivo());
         dto.setValidado(usuario.getValidado());
         dto.setTipoUsuario(usuario.getTipoUsuario());
+        dto.setEstado(usuario.getEstado());
         dto.setRoles(usuario.getRoles());
         return dto;
     }

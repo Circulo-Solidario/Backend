@@ -13,12 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class Punto {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Double latitud;
     private Double longitud;
     private String descripcion;
-    private String estado; // "pendiente" o "atendido"
+    private String estado;
 }

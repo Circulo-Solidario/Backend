@@ -108,14 +108,16 @@ public class ProyectoController {
         proyecto.setFechaFin(proyectoBody.getFechaFin());
         proyecto.setEstado(proyecto.getEstado());
 
-        List<ImagenesProyecto> imagenes = new ArrayList<>();
+        // Limpiar la colección existente para evitar problemas de orphan deletion
+        proyecto.getImagenes().clear();
+        
+        // Agregar las nuevas imágenes a la colección existente
         proyectoBody.getImagenes().forEach(url -> {
             ImagenesProyecto imagen = new ImagenesProyecto();
             imagen.setUrlImagen(url);
             imagen.setProyecto(proyecto);
-            imagenes.add(imagen);
+            proyecto.getImagenes().add(imagen);
         });
-        proyecto.setImagenes(imagenes);
 
         Proyecto actualizado = proyectoService.save(proyecto);
         return ResponseEntity.ok(proyectoMapper.entityToResponse(actualizado));

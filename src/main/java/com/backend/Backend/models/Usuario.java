@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
+import com.backend.Backend.models.enums.EstadoUsuario;
 
 @Entity
 @Table(name = "usuarios")
@@ -52,4 +53,8 @@ public class Usuario {
 
     @Column(name = "validado", nullable = false)
     private Boolean validado = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "estado", nullable = false)
+    private EstadoUsuario estado;
 }

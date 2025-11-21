@@ -5,15 +5,24 @@ import com.backend.Backend.dtos.usuario.EditarUsuarioDTO;
 import com.backend.Backend.dtos.usuario.NuevoUsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
+import com.backend.Backend.dtos.usuario.UsuarioFiltrarDTO;
+import com.backend.Backend.dtos.documento.DocumentoRequest;
+import com.backend.Backend.dtos.documento.DocumentoDTO;
+import com.backend.Backend.services.DocumentoService;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.models.enums.TipoUsuario;
+import com.backend.Backend.models.enums.EstadoUsuario;
+import com.backend.Backend.dtos.usuario.ActualizarEstadoDTO;
 import com.backend.Backend.services.RolService;
 import com.backend.Backend.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +34,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final RolService rolService;
     private final UsuarioMapper usuarioMapper;
+    private final DocumentoService documentoService;
 
     @CrossOrigin
     @GetMapping
@@ -71,6 +81,9 @@ public class UsuarioController {
             usuario.setActivo(true);
             usuario.setTipoUsuario(usuarioDto.getTipoUsuario());
             usuario.setValidado(false);
+            
+            // Establecer estado por defecto como SIN_DOCUMENTO
+            usuario.setEstado(EstadoUsuario.SIN_DOCUMENTO);
 
             if(usuarioDto.getRoles() != null) {
                 List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
@@ -103,7 +116,7 @@ public class UsuarioController {
         usuarioAActualizar.setFechaNacimiento(usuarioDto.getFechaNacimiento());
         usuarioAActualizar.setUrlImagen(usuarioDto.getUrlImagen());
 
-        if(!usuarioDto.getRoles().isEmpty()){
+        if(usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()){
             List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
             if (roles.isEmpty()) {
                 return ResponseEntity.badRequest().build();
@@ -128,21 +141,112 @@ public class UsuarioController {
 
     @CrossOrigin
     @PatchMapping("/{id}/validar")
-    public ResponseEntity<UsuarioDTO> validarUsuario(@PathVariable Long id) {
+    public ResponseEntity<?> validarUsuario(@PathVariable Long id, @RequestBody ActualizarEstadoDTO estadoDto) {
         Optional<Usuario> usuario = usuarioService.getUsuarioById(id);
         if(usuario.isEmpty()){
             return ResponseEntity.notFound().build();
         }
-        if(usuario.get().getValidado()){
-            return ResponseEntity.badRequest().build();
+        
+        // Validar que sea una organización
+        if(usuario.get().getTipoUsuario() != TipoUsuario.ORGANIZACION){
+            return ResponseEntity.badRequest().body(new ErrorResponse("Solo se pueden validar usuarios de tipo ORGANIZACION"));
         }
-        usuario.get().setValidado(true);
+
+        usuario.get().setEstado(estadoDto.getEstado());
+
+        if(estadoDto.getEstado() == EstadoUsuario.VALIDADO){
+            usuario.get().setValidado(true);
+        }
+
         return ResponseEntity.ok(usuarioMapper.mapToDto(usuarioService.updateUsuario(usuario.get())));
     }
 
     @CrossOrigin
     @GetMapping("/filtrar")
-    public ResponseEntity<List<UsuarioSimpleDTO>> getUsuariosFilters(@RequestParam(required = false) Boolean activo, @RequestParam(required = false)TipoUsuario tipoUsuario) {
-        return ResponseEntity.ok(usuarioService.getUsuariosFilters(activo, tipoUsuario).stream().map(usuarioMapper::mapEntityToUsuarioSimple).toList());
+    public ResponseEntity<List<UsuarioFiltrarDTO>> getUsuariosFilters(@RequestParam(required = false) Boolean validado, @RequestParam(required = false)TipoUsuario tipoUsuario) {
+        List<UsuarioFiltrarDTO> result = usuarioService.getUsuariosFilters(validado, tipoUsuario).stream().map(usuario -> {
+            UsuarioFiltrarDTO.UsuarioFiltrarDTOBuilder builder = UsuarioFiltrarDTO.builder()
+                    .id(usuario.getId())
+                    .nombreApellido(usuario.getNombreApellido())
+                    .alias(usuario.getAlias())
+                    .correo(usuario.getCorreo())
+                    .urlImagen(usuario.getUrlImagen())
+                    .tipoUsuario(usuario.getTipoUsuario())
+                    .estado(usuario.getEstado());
+
+            // obtener documentos vinculados
+            var documentos = documentoService.getDocumentosByUsuario(usuario.getId());
+            if (documentos != null && !documentos.isEmpty()) {
+                List<DocumentoDTO> docs = documentos.stream().map(d -> DocumentoDTO.builder()
+                        .id(d.getId())
+                        .nombre(d.getNombre())
+                        .fechaSubida(d.getFechaSubida())
+                        .build()).toList();
+                builder.documentos(docs);
+            }
+
+            return builder.build();
+        }).toList();
+
+        return ResponseEntity.ok(result);
+    }
+
+    @CrossOrigin
+    @GetMapping("/{id}/documentos")
+    public ResponseEntity<?> getDocumentosByUsuario(@PathVariable Long id) {
+        try {
+            var documentos = documentoService.getDocumentosByUsuario(id);
+            List<DocumentoDTO> docs = documentos.stream().map(d -> DocumentoDTO.builder()
+                    .id(d.getId())
+                    .nombre(d.getNombre())
+                    .fechaSubida(d.getFechaSubida())
+                    .build()).toList();
+            return ResponseEntity.ok(docs);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/{id}/documentos")
+    public ResponseEntity<?> uploadDocumento(@PathVariable Long id, @RequestParam MultipartFile archivo) {
+        try {
+            var saved = documentoService.createDocumento(id, archivo.getOriginalFilename(), archivo.getBytes());
+            DocumentoDTO dto = DocumentoDTO.builder()
+                    .id(saved.getId())
+                    .nombre(saved.getNombre())
+                    .fechaSubida(saved.getFechaSubida())
+                    .build();
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error al procesar el archivo: " + e.getMessage()));
+        }
+    }
+
+    @CrossOrigin
+    @DeleteMapping("/{id}/documentos/{docId}")
+    public ResponseEntity<Void> deleteDocumento(@PathVariable Long id, @PathVariable Long docId) {
+        try {
+            documentoService.deleteDocumento(id, docId);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/{id}/documentos/{docId}/descargar")
+    public ResponseEntity<?> descargarDocumento(@PathVariable Long id, @PathVariable Long docId) {
+        try {
+            var documento = documentoService.getDocumento(id, docId);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + documento.getNombre() + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(documento.getContenido());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
     }
 }

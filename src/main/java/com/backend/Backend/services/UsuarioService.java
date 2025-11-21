@@ -80,12 +80,12 @@ public class UsuarioService {
         return usuarios;
     }
 
-    public List<Usuario> getUsuariosFilters(Boolean activo, TipoUsuario tipoUsuario) {
+    public List<Usuario> getUsuariosFilters(Boolean validado, TipoUsuario tipoUsuario) {
         Specification<Usuario> spec = (root, query, cb) -> null;
 
-        if(activo != null){
+        if(validado != null){
             spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("activo"), activo));
+                    cb.equal(root.get("validado"), validado));
         }
 
         if(tipoUsuario != null){

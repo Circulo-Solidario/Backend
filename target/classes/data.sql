@@ -14,3 +14,6 @@ INSERT IGNORE INTO categoria (id, nombre, descripcion) VALUES (7, 'Artículos pa
 INSERT IGNORE INTO categoria (id, nombre, descripcion) VALUES (8, 'Artículos escolares', 'Útiles escolares y material educativo');
 INSERT IGNORE INTO categoria (id, nombre, descripcion) VALUES (9, 'Mobiliario', 'Muebles y artículos para el hogar');
 INSERT IGNORE INTO categoria (id, nombre, descripcion) VALUES (10, 'Otros', 'Otros artículos no categorizados');
+
+--S3cR37.Pa5$
+INSERT IGNORE INTO usuarios (id, activo, alias, contrasena, correo, fecha_nacimiento, nombre_apellido, tipo_usuario, url_imagen, validado) VALUES(1, true, 'ADMIN', '$2a$10$9coVE9wa.Rl1emmULrddfeZgTOK9KBH/MwwGvcSFSZrBQdDMW1YNO', 'admin@circulosolidario.com', NULL, 'Administrador del sistema', 'ADMINISTRADOR', NULL, true);
