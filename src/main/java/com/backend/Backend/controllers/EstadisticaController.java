@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/estadisticas")
+@RequestMapping("/api/estadisticas/global")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class EstadisticaController {
