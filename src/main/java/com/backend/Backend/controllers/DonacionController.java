@@ -32,9 +32,9 @@ public class DonacionController {
                     .build();
 
             PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-                    .success("https://arletta-glycolic-sundrily.ngrok-free.dev/principal/detalles-proyecto")
-                    .failure("https://arletta-glycolic-sundrily.ngrok-free.dev/principal/detalles-proyecto")
-                    .pending("https://arletta-glycolic-sundrily.ngrok-free.dev/principal/detalles-proyecto")
+                    .success("https://circulo-solidario.github.io/Frontend/principal/detalles-proyecto")
+                    .failure("https://circulo-solidario.github.io/Frontend/principal/detalles-proyecto")
+                    .pending("https://circulo-solidario.github.io/Frontend/principal/detalles-proyecto")
                     .build();
 
             PreferenceRequest preferenceRequest = PreferenceRequest.builder()
