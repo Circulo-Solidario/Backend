@@ -48,13 +48,14 @@ public class PuntoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarPunto(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarPunto(@PathVariable Long id) {
         if (!repo.existsById(id)) {
-            return ResponseEntity.status(404).body("Punto no encontrado");
+            return ResponseEntity.status(404).build();
         }
 
         repo.deleteById(id);
 
-        return ResponseEntity.ok("Punto eliminado correctamente");
+        return ResponseEntity.ok().build();
     }
 }
+
