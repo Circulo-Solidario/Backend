@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface MensajesRepository extends JpaRepository<Mensaje, Long> {
     List<Mensaje> findAllBySalaIdOrderByFechaMensajeAsc(Long salaId);
+    long countByUsuarioId(Long usuarioId);
 }

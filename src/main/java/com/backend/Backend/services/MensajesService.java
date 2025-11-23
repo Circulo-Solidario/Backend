@@ -19,4 +19,8 @@ public class MensajesService {
     public List<Mensaje> getAllMessagesBySala(Long salaId) {
         return messageRepository.findAllBySalaIdOrderByFechaMensajeAsc(salaId);
     }
+
+    public long countMessagesByUsuario(Long usuarioId) {
+        return messageRepository.countByUsuarioId(usuarioId);
+    }
 }
