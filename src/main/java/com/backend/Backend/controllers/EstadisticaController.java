@@ -4,6 +4,8 @@ import com.backend.Backend.dtos.estadistica.EstadisticaResponse;
 import com.backend.Backend.dtos.estadistica.PersonalEstadisticaResponse;
 import com.backend.Backend.models.Producto;
 import com.backend.Backend.models.Proyecto;
+import com.backend.Backend.dtos.estadistica.OrganizacionProyectoResumen;
+import com.backend.Backend.dtos.estadistica.OrganizacionProyectosMetricsResponse;
 import com.backend.Backend.models.Punto;
 import com.backend.Backend.models.Usuario;
 import com.backend.Backend.models.enums.EstadoProducto;
@@ -109,5 +111,54 @@ public class EstadisticaController {
 
         return ResponseEntity.ok(resp);
     }
+
+        @GetMapping("/organizacion/{id}/proyectos")
+        public ResponseEntity<OrganizacionProyectosMetricsResponse> getMetricsForOrganizacion(@PathVariable Long id) {
+
+        List<Proyecto> proyectosOrg = proyectoService.getProyectos(id, null, null);
+
+        OrganizacionProyectosMetricsResponse resp = new OrganizacionProyectosMetricsResponse();
+        resp.setOrganizacionId(id);
+        resp.setTotalProyectos(proyectosOrg.size());
+
+        double totalRecaudado = proyectosOrg.stream()
+            .mapToDouble(p -> p.getRecaudado() == null ? 0.0 : p.getRecaudado())
+            .sum();
+        resp.setTotalRecaudado(totalRecaudado);
+
+        // promedio de avance: promedio de (recaudado/objetivo)
+        double promedioAvance = proyectosOrg.stream()
+            .mapToDouble(p -> {
+                Double objetivo = p.getObjetivo();
+                Double recaudado = p.getRecaudado();
+                if (objetivo == null || objetivo == 0.0 || recaudado == null) return 0.0;
+                return (recaudado / objetivo) * 100.0;
+            }).average().orElse(0.0);
+        resp.setPromedioAvancePorcentaje(promedioAvance);
+
+        resp.setProyectosActivos(proyectosOrg.stream().filter(p -> p.getEstado() == EstadoProyecto.ACTIVO).count());
+        resp.setProyectosCancelados(proyectosOrg.stream().filter(p -> p.getEstado() == EstadoProyecto.CANCELADO).count());
+        resp.setProyectosFinalizadosExitosos(proyectosOrg.stream().filter(p -> p.getEstado() == EstadoProyecto.FINALIZADO_EXITOSO).count());
+        resp.setProyectosFinalizadosNoExitosos(proyectosOrg.stream().filter(p -> p.getEstado() == EstadoProyecto.FINALIZADO_NO_EXITOSO).count());
+
+        // Top proyectos por recaudación (max 5)
+        List<OrganizacionProyectoResumen> top = proyectosOrg.stream()
+            .sorted((a, b) -> Double.compare(
+                b.getRecaudado() == null ? 0.0 : b.getRecaudado(),
+                a.getRecaudado() == null ? 0.0 : a.getRecaudado()))
+            .limit(5)
+            .map(p -> new OrganizacionProyectoResumen(
+                p.getId(),
+                p.getNombre(),
+                p.getRecaudado() == null ? 0.0 : p.getRecaudado(),
+                p.getObjetivo() == null ? 0.0 : p.getObjetivo(),
+                (p.getObjetivo() == null || p.getObjetivo() == 0.0) ? 0.0 : ((p.getRecaudado() == null ? 0.0 : p.getRecaudado()) / p.getObjetivo()) * 100.0
+            ))
+            .toList();
+
+        resp.setTopProyectosPorRecaudacion(top);
+
+        return ResponseEntity.ok(resp);
+        }
 }
 
