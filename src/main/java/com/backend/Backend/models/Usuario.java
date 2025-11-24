@@ -43,6 +43,9 @@ public class Usuario {
     @Column(name = "tipo_usuario", nullable = false)
     private TipoUsuario tipoUsuario;
 
+    @Column(name = "mercadopago_access_token")
+    private String mercadoPagoAccessToken;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "usuarios_roles",

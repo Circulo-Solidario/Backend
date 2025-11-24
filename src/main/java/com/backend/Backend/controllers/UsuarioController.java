@@ -115,6 +115,13 @@ public class UsuarioController {
         usuarioAActualizar.setAlias(usuarioDto.getAlias());
         usuarioAActualizar.setFechaNacimiento(usuarioDto.getFechaNacimiento());
         usuarioAActualizar.setUrlImagen(usuarioDto.getUrlImagen());
+        if (usuarioDto.getMercadoPagoAccessToken() != null) {
+            if (usuarioAActualizar.getTipoUsuario() == TipoUsuario.ORGANIZACION) {
+                usuarioAActualizar.setMercadoPagoAccessToken(usuarioDto.getMercadoPagoAccessToken());
+            } else {
+                // Opcional: se ignora o rechaza si no es organización.
+            }
+        }
 
         if(usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()){
             List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
