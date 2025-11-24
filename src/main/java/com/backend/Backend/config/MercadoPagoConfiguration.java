@@ -1,6 +1,5 @@
 package com.backend.Backend.config;
 
-import com.mercadopago.MercadoPagoConfig;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,7 @@ public class MercadoPagoConfiguration {
 
     @Value("${ACCESS_TOKEN}")
     public void configurarMercadoPago(String accessToken) {
-        MercadoPagoConfig.setAccessToken(accessToken);
-        System.out.println("Mercado Pago configurado correctamente.");
+        this.accessToken = accessToken;
+        System.out.println("Mercado Pago configuración cargada (token por defecto guardado, no seteado globalmente).");
     }
 }

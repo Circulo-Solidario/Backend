@@ -17,5 +17,6 @@ public class EditarUsuarioDTO {
     private String alias;
     private Date fechaNacimiento;
     private String urlImagen;
+    private String mercadoPagoAccessToken;
     private List<Long> roles;
 }

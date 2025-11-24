@@ -32,6 +32,7 @@ public class UsuarioMapper {
                 .tipoUsuario(usuario.getTipoUsuario())
                 .estado(usuario.getEstado())
                 .roles(usuario.getRoles())
+                .mercadoPagoAccessToken(usuario.getMercadoPagoAccessToken())
                 .build();
     }
 
@@ -48,6 +49,11 @@ public class UsuarioMapper {
             usuario.setValidado(dto.getValidado());
         } else {
             usuario.setValidado(usuario.getTipoUsuario() == TipoUsuario.ORGANIZACION ? false : true);
+        }
+
+        if (dto instanceof UsuarioDTO) {
+            UsuarioDTO usuarioDTO = (UsuarioDTO) dto;
+            usuario.setMercadoPagoAccessToken(usuarioDTO.getMercadoPagoAccessToken());
         }
 
         if (usuario.getTipoUsuario() == TipoUsuario.USUARIO) {
@@ -89,6 +95,7 @@ public class UsuarioMapper {
         dto.setTipoUsuario(usuario.getTipoUsuario());
         dto.setEstado(usuario.getEstado());
         dto.setRoles(usuario.getRoles());
+        dto.setMercadoPagoAccessToken(usuario.getMercadoPagoAccessToken());
         return dto;
     }
 
