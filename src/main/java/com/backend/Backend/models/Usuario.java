@@ -60,4 +60,11 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
     private EstadoUsuario estado;
+
+    @Column(name = "codigo_recuperacion")
+    private String codigoRecuperacion;
+
+    @Column(name = "fecha_codigo_recuperacion")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaCodigoRecuperacion;
 }
