@@ -30,4 +30,5 @@ public class UsuarioDTO {
     private TipoUsuario tipoUsuario;
     private EstadoUsuario estado;
     private List<Rol> roles;
+    private String mercadoPagoAccessToken;
 }

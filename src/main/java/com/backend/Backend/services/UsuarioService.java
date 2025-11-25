@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,5 +94,55 @@ public class UsuarioService {
         }
 
         return usuarioRepository.findAll(spec);
+    }
+
+    @Transactional
+    public void generarCodigoRecuperacion(Long usuarioId, RecuperacionService recuperacionService) {
+        Optional<Usuario> optionalUsuario = usuarioRepository.findById(usuarioId);
+        if (optionalUsuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Usuario usuario = optionalUsuario.get();
+        String codigo = recuperacionService.generarCodigoRecuperacion();
+        usuario.setCodigoRecuperacion(codigo);
+        usuario.setFechaCodigoRecuperacion(new Date());
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public void cambiarContrasena(Long usuarioId, String nuevaContrasena) {
+        Optional<Usuario> optionalUsuario = usuarioRepository.findById(usuarioId);
+        if (optionalUsuario.isEmpty()) {
+            throw new IllegalArgumentException("Usuario no encontrado");
+        }
+
+        Usuario usuario = optionalUsuario.get();
+        usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
+        usuario.setCodigoRecuperacion(null);
+        usuario.setFechaCodigoRecuperacion(null);
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean validarCodigoRecuperacion(Long usuarioId, String codigo, RecuperacionService recuperacionService) {
+        Optional<Usuario> optionalUsuario = usuarioRepository.findById(usuarioId);
+        if (optionalUsuario.isEmpty()) {
+            return false;
+        }
+
+        Usuario usuario = optionalUsuario.get();
+        
+        if (usuario.getCodigoRecuperacion() == null) {
+            return false;
+        }
+
+        boolean codigoCorrecto = usuario.getCodigoRecuperacion().equals(codigo);
+        boolean codigoNoExpirado = recuperacionService.validarCodigoRecuperacion(
+            usuario.getCodigoRecuperacion(),
+            usuario.getFechaCodigoRecuperacion()
+        );
+
+        return codigoCorrecto && codigoNoExpirado;
     }
 }

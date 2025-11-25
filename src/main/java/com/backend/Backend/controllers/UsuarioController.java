@@ -6,9 +6,13 @@ import com.backend.Backend.dtos.usuario.NuevoUsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioDTO;
 import com.backend.Backend.dtos.usuario.UsuarioSimpleDTO;
 import com.backend.Backend.dtos.usuario.UsuarioFiltrarDTO;
-import com.backend.Backend.dtos.documento.DocumentoRequest;
+import com.backend.Backend.dtos.usuario.CambiarContrasenaDTO;
+import com.backend.Backend.dtos.usuario.ValidarCodigoRecuperacionDTO;
+import com.backend.Backend.dtos.usuario.ResultadoRecuperacionDTO;
 import com.backend.Backend.dtos.documento.DocumentoDTO;
 import com.backend.Backend.services.DocumentoService;
+import com.backend.Backend.services.EmailService;
+import com.backend.Backend.services.RecuperacionService;
 import com.backend.Backend.mappers.UsuarioMapper;
 import com.backend.Backend.models.Rol;
 import com.backend.Backend.models.Usuario;
@@ -35,6 +39,8 @@ public class UsuarioController {
     private final RolService rolService;
     private final UsuarioMapper usuarioMapper;
     private final DocumentoService documentoService;
+    private final EmailService emailService;
+    private final RecuperacionService recuperacionService;
 
     @CrossOrigin
     @GetMapping
@@ -115,6 +121,13 @@ public class UsuarioController {
         usuarioAActualizar.setAlias(usuarioDto.getAlias());
         usuarioAActualizar.setFechaNacimiento(usuarioDto.getFechaNacimiento());
         usuarioAActualizar.setUrlImagen(usuarioDto.getUrlImagen());
+        if (usuarioDto.getMercadoPagoAccessToken() != null) {
+            if (usuarioAActualizar.getTipoUsuario() == TipoUsuario.ORGANIZACION) {
+                usuarioAActualizar.setMercadoPagoAccessToken(usuarioDto.getMercadoPagoAccessToken());
+            } else {
+                // Opcional: se ignora o rechaza si no es organización.
+            }
+        }
 
         if(usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()){
             List<Rol> roles = rolService.obtenerRolesDesdeListaId(usuarioDto.getRoles());
@@ -247,6 +260,70 @@ public class UsuarioController {
                     .body(documento.getContenido());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/recuperar-contrasena")
+    public ResponseEntity<?> recuperarContrasena(@RequestParam String email) {
+        try {
+            Optional<Usuario> usuario = usuarioService.getUsuarioByCorreo(email);
+            if (usuario.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("El correo no está registrado"));
+            }
+
+            usuarioService.generarCodigoRecuperacion(usuario.get().getId(), recuperacionService);
+            String codigo = usuario.get().getCodigoRecuperacion();
+            emailService.enviarCodigoRecuperacion(email, codigo);
+
+            return ResponseEntity.ok(new ErrorResponse("Código de recuperación enviado al correo"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Error: " + e.getMessage()));
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/validar-codigo")
+    public ResponseEntity<?> validarCodigoRecuperacion(@RequestBody ValidarCodigoRecuperacionDTO dto) {
+        try {
+            Optional<Usuario> usuario = usuarioService.getUsuarioByCorreo(dto.getEmail());
+            if (usuario.isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("El correo no está registrado"));
+            }
+
+            Boolean valido = usuarioService.validarCodigoRecuperacion(usuario.get().getId(), dto.getCodigo(), recuperacionService);
+            
+            if (!valido) {
+                return ResponseEntity.ok(ResultadoRecuperacionDTO.builder()
+                        .valido(false)
+                        .mensaje("Código inválido o expirado")
+                        .build());
+            }
+
+            return ResponseEntity.ok(ResultadoRecuperacionDTO.builder()
+                    .valido(true)
+                    .mensaje("Código válido")
+                    .usuarioId(usuario.get().getId())
+                    .build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error: " + e.getMessage()));
+        }
+    }
+
+    @CrossOrigin
+    @PatchMapping("/{id}/cambiar-contrasena")
+    public ResponseEntity<?> cambiarContrasena(@PathVariable Long id, @RequestBody CambiarContrasenaDTO dto) {
+        try {
+            Optional<Usuario> usuario = usuarioService.getUsuarioById(id);
+            if (usuario.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            usuarioService.cambiarContrasena(id, dto.getNuevaContrasena());
+            
+            return ResponseEntity.ok(new ErrorResponse("Contraseña cambiada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Error: " + e.getMessage()));
         }
     }
 }
