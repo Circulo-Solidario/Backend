@@ -33,6 +33,7 @@ public class UsuarioMapper {
                 .estado(usuario.getEstado())
                 .roles(usuario.getRoles())
                 .mercadoPagoAccessToken(usuario.getMercadoPagoAccessToken())
+                // NO incluir codigoRecuperacion
                 .build();
     }
 
@@ -96,6 +97,7 @@ public class UsuarioMapper {
         dto.setEstado(usuario.getEstado());
         dto.setRoles(usuario.getRoles());
         dto.setMercadoPagoAccessToken(usuario.getMercadoPagoAccessToken());
+        // NO incluir codigoRecuperacion
         return dto;
     }
 
