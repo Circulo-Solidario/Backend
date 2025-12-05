@@ -48,7 +48,7 @@ public class EstadisticasService {
         List<Usuario> usuarios = usuarioService.getAllUsuarios();
 
         // Cantidad de usuarios registrados
-        node.setCantidadRegistrados(usuarios.size());
+        node.setCantidadRegistrados(usuarios.size() - 1);
 
         // Cantidad por tipo (USUARIO, ORGANIZACION)
         Map<String, Long> cantidadPorTipo = new HashMap<>();
@@ -86,14 +86,15 @@ public class EstadisticasService {
 
         // Cantidad por estado
         Map<String, Long> cantidadPorEstado = new HashMap<>();
-        cantidadPorEstado.put("DISPONIBLE", productos.stream().filter(p -> p.getEstado() == EstadoProducto.DISPONIBLE).count());
-        cantidadPorEstado.put("SOLICITADO", productos.stream().filter(p -> p.getEstado() == EstadoProducto.SOLICITADO).count());
-        cantidadPorEstado.put("RESERVADO", productos.stream().filter(p -> p.getEstado() == EstadoProducto.RESERVADO).count());
-        cantidadPorEstado.put("ENTREGADO", productos.stream().filter(p -> p.getEstado() == EstadoProducto.ENTREGADO).count());
+        cantidadPorEstado.put("DISPONIBLE", productos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProducto.DISPONIBLE).count());
+        cantidadPorEstado.put("SOLICITADO", productos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProducto.SOLICITADO).count());
+        cantidadPorEstado.put("RESERVADO", productos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProducto.RESERVADO).count());
+        cantidadPorEstado.put("ENTREGADO", productos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProducto.ENTREGADO).count());
         node.setCantidadPorEstado(cantidadPorEstado);
 
         // Cantidad por categoría
         Map<String, Long> cantidadPorCategoria = productos.stream()
+                .filter(p -> p.getCategoria() != null && p.getCategoria().getNombre() != null)
                 .collect(Collectors.groupingBy(
                         p -> p.getCategoria().getNombre(),
                         Collectors.counting()
@@ -102,7 +103,7 @@ public class EstadisticasService {
 
         // Top 5 usuarios con más productos entregados
         Map<Long, Long> productosEntregadosPorUsuario = productos.stream()
-                .filter(p -> p.getEstado() == EstadoProducto.ENTREGADO)
+                .filter(p -> p.getEstado() == EstadoProducto.ENTREGADO && p.getUsuario() != null)
                 .collect(Collectors.groupingBy(
                         p -> p.getUsuario().getId(),
                         Collectors.counting()
@@ -112,10 +113,10 @@ public class EstadisticasService {
                 .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
                 .limit(5)
                 .map(entry -> {
-                    Usuario usuario = usuarioRepository.findById(entry.getKey()).orElse(null);
+                    Optional<Usuario> usuario = usuarioRepository.findById(entry.getKey());
                     return new UsuarioProductosEntregadosResumen(
                             entry.getKey(),
-                            usuario != null ? usuario.getNombreApellido() : "Usuario desconocido",
+                            usuario.map(Usuario::getNombreApellido).orElse("Usuario desconocido"),
                             entry.getValue()
                     );
                 })
@@ -135,33 +136,36 @@ public class EstadisticasService {
 
         // Total recaudado
         double totalRecaudado = proyectos.stream()
-                .mapToDouble(p -> p.getRecaudado() != null ? p.getRecaudado() : 0.0)
+                .filter(p -> p.getRecaudado() != null && p.getRecaudado() > 0)
+                .mapToDouble(Proyecto::getRecaudado)
                 .sum();
         node.setTotalRecaudado(totalRecaudado);
 
         // Cantidad por estado
         Map<String, Long> cantidadPorEstado = new HashMap<>();
-        cantidadPorEstado.put("ACTIVO", proyectos.stream().filter(p -> p.getEstado() == EstadoProyecto.ACTIVO).count());
-        cantidadPorEstado.put("CANCELADO", proyectos.stream().filter(p -> p.getEstado() == EstadoProyecto.CANCELADO).count());
-        cantidadPorEstado.put("FINALIZADO_EXITOSO", proyectos.stream().filter(p -> p.getEstado() == EstadoProyecto.FINALIZADO_EXITOSO).count());
-        cantidadPorEstado.put("FINALIZADO_NO_EXITOSO", proyectos.stream().filter(p -> p.getEstado() == EstadoProyecto.FINALIZADO_NO_EXITOSO).count());
+        cantidadPorEstado.put("ACTIVO", proyectos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProyecto.ACTIVO).count());
+        cantidadPorEstado.put("CANCELADO", proyectos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProyecto.CANCELADO).count());
+        cantidadPorEstado.put("FINALIZADO_EXITOSO", proyectos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProyecto.FINALIZADO_EXITOSO).count());
+        cantidadPorEstado.put("FINALIZADO_NO_EXITOSO", proyectos.stream().filter(p -> p.getEstado() != null && p.getEstado() == EstadoProyecto.FINALIZADO_NO_EXITOSO).count());
         node.setCantidadPorEstado(cantidadPorEstado);
 
         // Top 5 usuarios con más donaciones totales
         Map<Long, Double> donacionesPorUsuario = donaciones.stream()
+                .filter(d -> d.getDonador() != null && d.getMonto() != null)
                 .collect(Collectors.groupingBy(
                         d -> d.getDonador().getId(),
-                        Collectors.summingDouble(d -> d.getMonto() != null ? d.getMonto() : 0.0)
+                        Collectors.summingDouble(Donacion::getMonto)
                 ));
 
         List<UsuarioDonacionesResumen> topDonadores = donacionesPorUsuario.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
                 .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
                 .limit(5)
                 .map(entry -> {
-                    Usuario usuario = usuarioRepository.findById(entry.getKey()).orElse(null);
+                    Optional<Usuario> usuario = usuarioRepository.findById(entry.getKey());
                     return new UsuarioDonacionesResumen(
                             entry.getKey(),
-                            usuario != null ? usuario.getNombreApellido() : "Usuario desconocido",
+                            usuario.map(Usuario::getNombreApellido).orElse("Usuario desconocido"),
                             entry.getValue()
                     );
                 })
@@ -174,7 +178,7 @@ public class EstadisticasService {
         int anioActual = now.get(Calendar.YEAR);
 
         Map<String, Double> recaudoPorDia = donaciones.stream()
-                .filter(d -> d.getFechaDonacion() != null)
+                .filter(d -> d.getFechaDonacion() != null && d.getMonto() != null && d.getMonto() > 0)
                 .filter(d -> {
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(d.getFechaDonacion());
@@ -185,7 +189,7 @@ public class EstadisticasService {
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                             return sdf.format(d.getFechaDonacion());
                         },
-                        Collectors.summingDouble(d -> d.getMonto() != null ? d.getMonto() : 0.0)
+                        Collectors.summingDouble(Donacion::getMonto)
                 ));
         node.setRecaudoPorDia(recaudoPorDia);
 
@@ -201,6 +205,7 @@ public class EstadisticasService {
 
         // Cantidad por estado
         Map<String, Long> cantidadPorEstado = puntos.stream()
+                .filter(p -> p.getEstado() != null && !p.getEstado().trim().isEmpty())
                 .collect(Collectors.groupingBy(
                         Punto::getEstado,
                         Collectors.counting()
