@@ -15,4 +15,6 @@ public class PublicarProductoDTO {
     private String descripcion;
     private Long idUsuario;
     private String urlImagen;
+    private Double latitud;
+    private Double longitud;
 }

@@ -28,6 +28,7 @@ public class Sala {
     @Column(name = "nombre_sala", unique = true, nullable = false)
     private String nombreSala;
 
+    @Enumerated(EnumType.STRING)
     private EstadoSala estado;
 
     @OneToMany(mappedBy = "sala", cascade = CascadeType.ALL, orphanRemoval = true)

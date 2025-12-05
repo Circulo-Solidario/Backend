@@ -38,5 +38,6 @@ public class Notificacion {
     private Date fechaVistaNotificacion = null;
 
     @Column(name = "tipo_notificacion")
+    @Enumerated(EnumType.STRING)
     private TipoNotificaciones tipoNotificacion;
 }

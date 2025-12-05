@@ -36,7 +36,13 @@ public class Producto {
 
     private String urlImagen;
 
+    @Column(name = "estado_producto")
+    @Enumerated(EnumType.STRING)
     private EstadoProducto estado;
+
+    private Double latitud;
+
+    private Double longitud;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

@@ -20,6 +20,8 @@ public class ProductoMapper {
                 .estado(producto.getEstado())
                 .usuario(usuarioMapper.mapEntityToUsuarioSimple(producto.getUsuario()))
                 .urlImagen(producto.getUrlImagen())
+                .latitud(producto.getLatitud())
+                .longitud(producto.getLongitud())
                 .build();
     }
 }

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DonacionRequest {
-    private String nombreProyecto;
+    private Long proyectoId;
     private Double monto;
-    private String donadorEmail;
 }

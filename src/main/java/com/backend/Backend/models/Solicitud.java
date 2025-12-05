@@ -32,6 +32,7 @@ public class Solicitud {
     @JoinColumn(name = "id_producto")
     private Producto producto;
 
+    @Enumerated(EnumType.STRING)
     private EstadoSolicitud estado = EstadoSolicitud.PENDIENTE;
 
     @Column(name = "fecha_solicitud")

@@ -121,12 +121,9 @@ public class UsuarioController {
         usuarioAActualizar.setAlias(usuarioDto.getAlias());
         usuarioAActualizar.setFechaNacimiento(usuarioDto.getFechaNacimiento());
         usuarioAActualizar.setUrlImagen(usuarioDto.getUrlImagen());
-        if (usuarioDto.getMercadoPagoAccessToken() != null) {
-            if (usuarioAActualizar.getTipoUsuario() == TipoUsuario.ORGANIZACION) {
-                usuarioAActualizar.setMercadoPagoAccessToken(usuarioDto.getMercadoPagoAccessToken());
-            } else {
-                // Opcional: se ignora o rechaza si no es organización.
-            }
+
+        if (usuarioDto.getMercadoPagoAccessToken() != null && usuarioAActualizar.getTipoUsuario() == TipoUsuario.ORGANIZACION && !usuarioDto.getMercadoPagoAccessToken().isEmpty()) {
+            usuarioAActualizar.setMercadoPagoAccessToken(usuarioDto.getMercadoPagoAccessToken());
         }
 
         if(usuarioDto.getRoles() != null && !usuarioDto.getRoles().isEmpty()){
@@ -271,7 +268,9 @@ public class UsuarioController {
             if (usuario.isEmpty()) {
                 return ResponseEntity.badRequest().body(new ErrorResponse("El correo no está registrado"));
             }
-
+            if(usuario.get().getContrasena() == null || usuario.get().getContrasena().isEmpty()) {
+                return ResponseEntity.badRequest().body(new ErrorResponse("La cuenta que intenta recuperar es una cuenta de inicio de google, debe recuperarla desde allí"));
+            }
             usuarioService.generarCodigoRecuperacion(usuario.get().getId(), recuperacionService);
             String codigo = usuario.get().getCodigoRecuperacion();
             emailService.enviarCodigoRecuperacion(email, codigo);

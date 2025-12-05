@@ -4,6 +4,8 @@ import com.backend.Backend.models.enums.EstadoProyecto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,6 +49,7 @@ public class Proyecto {
 
     private Double recaudado;
 
+    @Enumerated(EnumType.STRING)
     private EstadoProyecto estado;
 
     @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, orphanRemoval = true)
