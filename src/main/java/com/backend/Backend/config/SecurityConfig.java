@@ -17,7 +17,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.disable())
+            .cors(cors -> cors.configurationSource(request -> {
+                org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+                config.setAllowedOrigins(java.util.Arrays.asList("*"));
+                config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+                config.setAllowedHeaders(java.util.Arrays.asList("*"));
+                config.setMaxAge(3600L);
+                return config;
+            }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", 
                                "/swagger-ui/**", 
