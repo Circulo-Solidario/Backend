@@ -14,10 +14,4 @@ public class MercadoPagoConfiguration {
 
     @Value("${ACCESS_TOKEN}")
     private String accessToken;
-
-    @Value("${ACCESS_TOKEN}")
-    public void configurarMercadoPago(String accessToken) {
-        this.accessToken = accessToken;
-        System.out.println("Mercado Pago configuración cargada (token por defecto guardado, no seteado globalmente).");
-    }
 }
