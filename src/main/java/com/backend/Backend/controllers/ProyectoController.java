@@ -138,6 +138,11 @@ public class ProyectoController {
     @PatchMapping("/{id}/actualizar-recaudado")
     public ResponseEntity<ProyectoResponse> actualizarRecaudado(@PathVariable Long id, @RequestBody RecaudadoRequest recaudado) {
         Optional<Proyecto> proyecto = proyectoService.getProyecto(id);
-        return proyecto.map(value -> ResponseEntity.ok(proyectoMapper.entityToResponse(proyectoService.actualizarRecaudado(value, recaudado.getRecaudado())))).orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<Usuario> usuario = usuarioService.getUsuarioById(recaudado.getUsuarioId());
+        if (proyecto.isEmpty() || usuario.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Proyecto actualizado = proyectoService.actualizarRecaudado(proyecto.get(), recaudado.getRecaudado(), usuario.get());
+        return ResponseEntity.ok(proyectoMapper.entityToResponse(actualizado));
     }
 }

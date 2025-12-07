@@ -33,7 +33,11 @@ public class ProductoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) Long categoriaId) {
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) Double latitud,
+            @RequestParam(required = false) Double longitud,
+            @RequestParam(required = false) Integer distanciaKm
+    ) {
         if(categoriaId != null) {
             Optional<Categoria> categoria = categoriaService.findById(categoriaId);
             if(categoria.isEmpty()){
@@ -41,7 +45,7 @@ public class ProductoController {
             }
         }
         Pageable pageable = PageRequest.of(page, size);
-        Page<Producto> productos = productoService.findByFilters(nombre, categoriaId, pageable);
+        Page<Producto> productos = productoService.findByFilters(nombre, categoriaId, latitud, longitud, distanciaKm, pageable);
         return ResponseEntity.ok(productos);
     }
 
@@ -68,6 +72,8 @@ public class ProductoController {
         producto.setUrlImagen(dto.getUrlImagen());
         producto.setEstado(EstadoProducto.DISPONIBLE);
         producto.setSolicitantes(new ArrayList<>());
+        producto.setLongitud(dto.getLongitud());
+        producto.setLatitud(dto.getLatitud());
         Producto savedProducto = productoService.save(producto);
         return ResponseEntity.ok(savedProducto);
     }

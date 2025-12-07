@@ -1,7 +1,10 @@
 package com.backend.Backend.services;
 
+import com.backend.Backend.models.Donacion;
 import com.backend.Backend.models.Proyecto;
+import com.backend.Backend.models.Usuario;
 import com.backend.Backend.models.enums.EstadoProyecto;
+import com.backend.Backend.repositories.DonacionRepository;
 import com.backend.Backend.repositories.ProyectoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,6 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProyectoService {
     private final ProyectoRepository proyectoRepository;
+    private final DonacionRepository donacionRepository;
 
     private Proyecto actualizarProyecto(Proyecto proyecto) {
         if (proyecto.getEstado() == EstadoProyecto.ACTIVO &&
@@ -69,12 +73,19 @@ public class ProyectoService {
         proyectoRepository.deleteById(id);
     }
 
-    public Proyecto actualizarRecaudado(Proyecto proyecto, Double recaudado){
+    public Proyecto actualizarRecaudado(Proyecto proyecto, Double recaudado, Usuario usuario){
         proyecto.setRecaudado(proyecto.getRecaudado() + recaudado);
         if (proyecto.getEstado() == EstadoProyecto.ACTIVO &&
                 proyecto.getRecaudado() >= proyecto.getObjetivo()) {
             proyecto.setEstado(EstadoProyecto.FINALIZADO_EXITOSO);
         }
+        Donacion donacion = new Donacion();
+        donacion.setMonto(recaudado);
+        donacion.setFechaDonacion(Date.from(Instant.now()));
+        donacion.setProyecto(proyecto);
+        donacion.setDonador(usuario);
+        donacionRepository.save(donacion);
+
         return proyectoRepository.save(proyecto);
     }
 

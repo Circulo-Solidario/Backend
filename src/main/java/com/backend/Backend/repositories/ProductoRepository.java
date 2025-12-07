@@ -4,6 +4,7 @@ import com.backend.Backend.models.Producto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductoRepository extends JpaRepository<Producto, Long> {
+public interface ProductoRepository extends JpaRepository<Producto, Long>, JpaSpecificationExecutor<Producto> {
     @Query("SELECT p FROM Producto p WHERE p.categoria.id = :categoriaId")
     List<Producto> findListaDeProductosByCategoria(@Param("categoriaId") Long categoriaId);
     Page<Producto> findByNombreContainingIgnoreCase(String nombre, Pageable pageable);

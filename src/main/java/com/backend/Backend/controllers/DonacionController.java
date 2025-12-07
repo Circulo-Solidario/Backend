@@ -3,6 +3,8 @@ package com.backend.Backend.controllers;
 import com.backend.Backend.dtos.donacion.DonacionRequest;
 import com.backend.Backend.models.Proyecto;
 import com.backend.Backend.models.Usuario;
+import com.backend.Backend.models.enums.EstadoProyecto;
+import com.backend.Backend.repositories.ProyectoRepository;
 import com.mercadopago.MercadoPagoConfig;
 import com.mercadopago.client.preference.*;
 import com.mercadopago.resources.preference.Preference;
@@ -25,25 +27,22 @@ public class DonacionController {
 
     @Value("${ACCESS_TOKEN}")
     private String accessToken;
-
     private final ProyectoService proyectoService;
+    private final ProyectoRepository proyectoRepository;
     private final UsuarioService usuarioService;
 
     @PostMapping
     public Map<String, Object> crearPreferencia(@RequestBody DonacionRequest request) {
         try {
-            if (request.getNombreProyecto() == null || request.getNombreProyecto().trim().isEmpty()) {
-                return Map.of("error", "Debe especificar 'nombreProyecto' en la petición para identificar el proyecto.");
+            Proyecto proyecto = proyectoRepository.findById(request.getProyectoId()).orElse(null);
+            if (proyecto == null) {
+                return Map.of("error", "Proyecto no encontrado con ID: " + request.getProyectoId());
             }
 
-            List<Proyecto> encontrados = proyectoService.getProyectos(null, null, request.getNombreProyecto());
-            if (encontrados.isEmpty()) {
-                return Map.of("error", "Proyecto no encontrado con nombre: " + request.getNombreProyecto());
+            if(!proyecto.getEstado().equals(EstadoProyecto.ACTIVO)) {
+                return Map.of("error", "No se pueden realizar donaciones a un proyecto que no esté en curso.");
             }
-            Proyecto proyecto = encontrados.stream()
-                    .filter(p -> p.getNombre() != null && p.getNombre().equalsIgnoreCase(request.getNombreProyecto()))
-                    .findFirst()
-                    .orElse(encontrados.get(0));
+
             if (proyecto.getOrganizacion() == null) {
                 return Map.of("error", "El proyecto no tiene una organización asociada.");
             }
@@ -61,7 +60,7 @@ public class DonacionController {
             MercadoPagoConfig.setAccessToken(orgToken);
 
             PreferenceItemRequest item = PreferenceItemRequest.builder()
-                    .title("Donación a " + request.getNombreProyecto())
+                    .title("Donación a " + proyecto.getNombre())
                     .quantity(1)
                     .currencyId("ARS")
                     .unitPrice(BigDecimal.valueOf(request.getMonto()))

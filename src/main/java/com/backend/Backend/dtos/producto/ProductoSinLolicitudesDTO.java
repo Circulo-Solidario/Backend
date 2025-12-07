@@ -20,4 +20,6 @@ public class ProductoSinLolicitudesDTO {
     private EstadoProducto estado;
     private UsuarioSimpleDTO usuario;
     private String urlImagen;
+    private Double latitud;
+    private Double longitud;
 }

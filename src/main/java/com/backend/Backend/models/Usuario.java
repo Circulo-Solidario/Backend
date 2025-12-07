@@ -25,8 +25,10 @@ public class Usuario {
     private String nombreApellido;
 
     private String alias;
+
     @Column(unique = true)
     private String correo;
+
     private String contrasena;
 
     @Column(name = "fecha_nacimiento")
