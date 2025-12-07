@@ -25,7 +25,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Value("${brevo.api.key}")
+    @Value("${brevo.api.key:}")
     private String brevoApiKey;
 
     @Value("${brevo.api.url}")
@@ -52,21 +52,26 @@ public class EmailService {
         try {
             log.info("Iniciando envío de código de recuperación a: {}", destinatario);
 
-            // Debug: verificar que la API key se cargó correctamente
-            log.debug("API URL: {}", brevoApiUrl);
-            log.debug("API Key length: {}", brevoApiKey != null ? brevoApiKey.length() : 0);
-            log.debug("API Key first 5 chars: {}", brevoApiKey != null && brevoApiKey.length() > 5 ? brevoApiKey.substring(0, 5) : "EMPTY/NULL");
-            log.debug("From Email: {}", fromEmail);
+            // Obtener la API key de varias fuentes posibles
+            String apiKey = resolveBrevoApiKey();
 
-            if (brevoApiKey == null || brevoApiKey.isEmpty()) {
-                log.error("ERROR: brevoApiKey es null o está vacío!");
+            if (apiKey == null || apiKey.isEmpty()) {
+                log.error("ERROR: brevoApiKey es null o está vacío! Intenta con variable de entorno BREVO_API_KEY");
                 throw new RuntimeException("API key de Brevo no configurada correctamente");
             }
+
+            log.debug("API URL: {}", brevoApiUrl);
+            log.debug("API Key length: {}", apiKey.length());
+            log.debug("API Key first 10 chars: {}", apiKey.length() > 10 ? apiKey.substring(0, 10) : apiKey);
+            log.debug("From Email: {}", fromEmail);
 
             // Crear los headers con la API key de Brevo
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("api-key", brevoApiKey);
+            headers.set("api-key", apiKey);
+
+            log.debug("Headers configurados: Content-Type={}, api-key header presente: {}",
+                headers.getContentType(), headers.containsKey("api-key"));
 
             // Crear el body de la solicitud según la documentación de Brevo
             Map<String, Object> emailBody = new HashMap<>();
@@ -100,6 +105,7 @@ public class EmailService {
             HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
 
             // Realizar la solicitud POST a Brevo
+            log.info("Enviando solicitud POST a Brevo...");
             ResponseEntity<String> response = restTemplate.postForEntity(brevoApiUrl, request, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
@@ -113,5 +119,28 @@ public class EmailService {
             log.error("Error al enviar el email de recuperación a través de Brevo: {}", e.getMessage(), e);
             throw new RuntimeException("Error al enviar el email de recuperación a través de Brevo: " + e.getMessage());
         }
+    }
+
+    /**
+     * Resuelve la API key de Brevo desde múltiples fuentes:
+     * 1. Variable de entorno BREVO_API_KEY
+     * 2. Property brevo.api.key del application.properties
+     */
+    private String resolveBrevoApiKey() {
+        // Intentar obtener de variable de entorno primero
+        String envApiKey = System.getenv("BREVO_API_KEY");
+        if (envApiKey != null && !envApiKey.isEmpty()) {
+            log.debug("API key cargada desde variable de entorno BREVO_API_KEY");
+            return envApiKey;
+        }
+
+        // Luego intentar desde la propiedad
+        if (brevoApiKey != null && !brevoApiKey.isEmpty()) {
+            log.debug("API key cargada desde application.properties");
+            return brevoApiKey;
+        }
+
+        log.error("No se encontró API key de Brevo en ninguna fuente");
+        return null;
     }
 }
