@@ -60,17 +60,17 @@ public class EmailService {
                 throw new RuntimeException("API key de Brevo no configurada correctamente");
             }
 
-            log.debug("API URL: {}", brevoApiUrl);
-            log.debug("API Key length: {}", apiKey.length());
-            log.debug("API Key first 10 chars: {}", apiKey.length() > 10 ? apiKey.substring(0, 10) : apiKey);
-            log.debug("From Email: {}", fromEmail);
+            log.info("API URL: {}", brevoApiUrl);
+            log.info("API Key length: {}", apiKey.length());
+            log.info("API Key first 10 chars: {}", apiKey.length() > 10 ? apiKey.substring(0, 10) : apiKey);
+            log.info("From Email: {}", fromEmail);
 
             // Crear los headers con la API key de Brevo
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", apiKey);
 
-            log.debug("Headers configurados: Content-Type={}, api-key header presente: {}",
+            log.info("Headers configurados: Content-Type={}, api-key header presente: {}",
                 headers.getContentType(), headers.containsKey("api-key"));
 
             // Crear el body de la solicitud según la documentación de Brevo
@@ -99,7 +99,7 @@ public class EmailService {
             ));
 
             String jsonBody = objectMapper.writeValueAsString(emailBody);
-            log.debug("Request body: {}", jsonBody);
+            log.info("Request body: {}", jsonBody);
 
             // Crear la solicitud HTTP
             HttpEntity<String> request = new HttpEntity<>(jsonBody, headers);
