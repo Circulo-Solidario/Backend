@@ -2,9 +2,7 @@ package com.backend.Backend.services;
 
 import com.backend.Backend.dtos.estadistica.*;
 import com.backend.Backend.models.*;
-import com.backend.Backend.models.enums.EstadoProducto;
-import com.backend.Backend.models.enums.EstadoProyecto;
-import com.backend.Backend.models.enums.TipoUsuario;
+import com.backend.Backend.models.enums.*;
 import com.backend.Backend.repositories.DonacionRepository;
 import com.backend.Backend.repositories.PuntoRepository;
 import com.backend.Backend.repositories.UsuarioRepository;
@@ -211,6 +209,149 @@ public class EstadisticasService {
                         Collectors.counting()
                 ));
         node.setCantidadPorEstado(cantidadPorEstado);
+
+        return node;
+    }
+
+    public EstadisticasPersonalesResponse obtenerEstadisticasPersonales(Long usuarioId) {
+        EstadisticasPersonalesResponse response = new EstadisticasPersonalesResponse();
+
+        // NODO PRODUCTOS
+        response.setProductos(construirNodoProductosPersonales(usuarioId));
+
+        // NODO PERSONAS EN SITUACIÓN DE CALLE
+        response.setPersonasEnSituacionDeCalle(construirNodoPersonasEnSituacionDeCalle(usuarioId));
+
+        // NODO DONACIONES
+        response.setDonaciones(construirNodoDonacionesPersonales(usuarioId));
+
+        return response;
+    }
+
+    private ProductosPersonalesEstadisticaNode construirNodoProductosPersonales(Long usuarioId) {
+        ProductosPersonalesEstadisticaNode node = new ProductosPersonalesEstadisticaNode();
+
+        List<Producto> productos = productoService.getProductosByUsuarioId(usuarioId);
+
+        // Cantidad de productos publicados
+        node.setCantidadPublicados(productos.size());
+
+        // Cantidad de productos donados
+        node.setCantidadDonados(
+                (int) productos.stream().filter(p -> p.getEstado() == EstadoProducto.ENTREGADO).count()
+        );
+
+        // Cantidad por estado
+        Map<String, Long> cantidadPorEstado = productos.stream()
+                .filter(p -> p.getEstado() != null)
+                .collect(Collectors.groupingBy(
+                        p -> p.getEstado().name(),
+                        Collectors.counting()
+                ));
+
+        for (EstadoProducto estado : EstadoProducto.values()) {
+            cantidadPorEstado.putIfAbsent(estado.name(), 0L);
+        }
+
+        node.setCantidadPorEstado(cantidadPorEstado);
+
+        // Cantidad de productos solicitados
+        node.setCantidadSolicitados(
+                (int) productos.stream().filter(p -> !p.getSolicitantes().isEmpty()).count()
+        );
+
+        // Cantidad de productos recibidos
+        node.setCantidadRecibidos(
+                (int) productos.stream().filter(p -> p.getUsuario() != null && p.getUsuario().getId().equals(usuarioId)).count()
+        );
+
+        // Cantidad de cada categoría solicitada
+        Map<String, Long> cantidadPorCategoriaSolicitada = productos.stream()
+                .filter(p -> !p.getSolicitantes().isEmpty() && p.getCategoria() != null)
+                .collect(Collectors.groupingBy(
+                        p -> p.getCategoria().getNombre(),
+                        Collectors.counting()
+                ));
+        node.setCantidadPorCategoriaSolicitada(cantidadPorCategoriaSolicitada);
+
+        return node;
+    }
+
+    private PersonasEnSituacionDeCalleEstadisticaNode construirNodoPersonasEnSituacionDeCalle(Long usuarioId) {
+        PersonasEnSituacionDeCalleEstadisticaNode node = new PersonasEnSituacionDeCalleEstadisticaNode();
+
+        List<Punto> puntos = puntoRepository.findAll();
+
+        // Cantidad de puntos registrados por el usuario
+        node.setCantidadPuntosRegistrados(
+                (int) puntos.stream().filter(p -> p.getUsuarioRegistro() != null && p.getUsuarioRegistro().getId().equals(usuarioId)).count()
+        );
+
+        // Cantidad de puntos donde el usuario ayudó
+        node.setCantidadPuntosAyudados(
+                (int) puntos.stream().filter(p -> p.getUsuarioAyudo() != null && p.getUsuarioAyudo().getId().equals(usuarioId)).count()
+        );
+
+        // Orden del usuario por puntos ayudados
+        Map<Long, Long> puntosAyudadosPorUsuario = puntos.stream()
+                .filter(p -> p.getUsuarioAyudo() != null)
+                .collect(Collectors.groupingBy(
+                        p -> p.getUsuarioAyudo().getId(),
+                        Collectors.counting()
+                ));
+
+        List<Long> ranking = puntosAyudadosPorUsuario.entrySet().stream()
+                .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                .map(Map.Entry::getKey)
+                .toList();
+
+        node.setOrdenUsuario(ranking.indexOf(usuarioId) + 1);
+
+        return node;
+    }
+
+    private DonacionesPersonalesEstadisticaNode construirNodoDonacionesPersonales(Long usuarioId) {
+        DonacionesPersonalesEstadisticaNode node = new DonacionesPersonalesEstadisticaNode();
+
+        List<Donacion> donaciones = donacionRepository.findAllByDonadorId(usuarioId);
+
+        // Cantidad donada por el usuario
+        node.setCantidadDonada(
+                donaciones.stream().mapToDouble(Donacion::getMonto).sum()
+        );
+
+        // Donación más alta hecha por el usuario
+        node.setDonacionMasAlta(
+                donaciones.stream().mapToDouble(Donacion::getMonto).max().orElse(0)
+        );
+
+        // Organización a la que más ayudó
+        Optional<Map.Entry<String, Double>> organizacionMasAyudada = donaciones.stream()
+                .filter(d -> d.getProyecto() != null && d.getProyecto().getOrganizacion() != null)
+                .collect(Collectors.groupingBy(
+                        d -> d.getProyecto().getOrganizacion().getNombreApellido(),
+                        Collectors.summingDouble(Donacion::getMonto)
+                ))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue());
+
+        if (organizacionMasAyudada.isPresent()) {
+            Map<String, Object> organizacionMasAyudadaNodo = new HashMap<>();
+            organizacionMasAyudadaNodo.put("nombreOrganizacion", organizacionMasAyudada.get().getKey());
+            organizacionMasAyudadaNodo.put("monto", organizacionMasAyudada.get().getValue());
+            node.setOrganizacionMasAyudada(organizacionMasAyudadaNodo);
+        }
+
+        // Listado de donaciones
+        List<DonacionDetalle> detalles = donaciones.stream()
+                .map(d -> new DonacionDetalle(
+                        d.getProyecto() != null && d.getProyecto().getOrganizacion() != null ? d.getProyecto().getOrganizacion().getNombreApellido() : "N/A",
+                        d.getFechaDonacion(),
+                        d.getMonto()
+                ))
+                .toList();
+        node.setDonaciones(detalles);
 
         return node;
     }
