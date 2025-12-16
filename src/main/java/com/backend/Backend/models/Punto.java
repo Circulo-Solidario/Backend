@@ -20,4 +20,10 @@ public class Punto {
     private Double longitud;
     private String descripcion;
     private String estado;
+    @ManyToOne
+    @JoinColumn(name = "usuario_registro_id")
+    private Usuario usuarioRegistro;
+    @ManyToOne
+    @JoinColumn(name = "usuario_ayudo_id")
+    private Usuario usuarioAyudo;
 }

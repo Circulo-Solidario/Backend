@@ -7,4 +7,5 @@ public class PuntoRequest {
     private Double latitud;
     private Double longitud;
     private String descripcion;
+    private Long usuarioRegistroId;
 }
