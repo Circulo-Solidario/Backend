@@ -16,7 +16,7 @@ public class EstadisticasController {
 
     private final EstadisticasService estadisticasService;
 
-    @GetMapping("/personal/{id}")
+    @GetMapping("/personales/{id}")
     public ResponseEntity<EstadisticasPersonalesResponse> obtenerEstadisticasPersonales(@PathVariable Long id) {
         EstadisticasPersonalesResponse response = estadisticasService.obtenerEstadisticasPersonales(id);
         return ResponseEntity.ok(response);
