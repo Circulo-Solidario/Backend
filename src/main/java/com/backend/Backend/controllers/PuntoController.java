@@ -2,9 +2,13 @@ package com.backend.Backend.controllers;
 
 import com.backend.Backend.dtos.punto.EstadoRequest;
 import com.backend.Backend.dtos.punto.PuntoRequest;
+import com.backend.Backend.dtos.punto.PuntoResponse;
+import com.backend.Backend.mappers.PuntoMapper;
 import com.backend.Backend.models.Punto;
 import com.backend.Backend.repositories.PuntoRepository;
+import com.backend.Backend.services.PuntoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,47 +19,46 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class PuntoController {
-    private final PuntoRepository repo;
+    private final PuntoService puntoService;
+    private final PuntoMapper puntoMapper;
 
     @GetMapping
-    public ResponseEntity<List<Punto>> obtenerTodos() {
-        return ResponseEntity.ok(repo.findAll());
+    public ResponseEntity<List<PuntoResponse>> obtenerTodos() {
+        return ResponseEntity.ok(puntoService.findAll().stream()
+                .map(puntoMapper::entityToPuntoResponse)
+                .toList());
     }
 
     @PostMapping
-    public Punto crear(@RequestBody PuntoRequest dto) {
-        Punto punto = Punto.builder()
-                .latitud(dto.getLatitud())
-                .longitud(dto.getLongitud())
-                .descripcion(dto.getDescripcion())
-                .estado("pendiente")
-                .build();
-        return repo.save(punto);
+    public ResponseEntity<?> crear(@RequestBody PuntoRequest dto) {
+        try {
+            Punto nuevoPunto = puntoService.saveNewPunto(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(puntoMapper.entityToPuntoResponse(nuevoPunto));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{id}/estado")
-    public ResponseEntity<Punto> actualizarEstado(
+    public ResponseEntity<PuntoResponse> actualizarEstado(
             @PathVariable Long id,
             @RequestBody EstadoRequest request) {
-
-        Punto punto = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Punto no encontrado"));
-
-        punto.setEstado(request.getEstado());
-        repo.save(punto);
-
-        return ResponseEntity.ok(punto);
+        try {
+            Punto puntoActualizado = puntoService.actualizarEstado(id, request);
+            return ResponseEntity.ok(puntoMapper.entityToPuntoResponse(puntoActualizado));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarPunto(@PathVariable Long id) {
-        if (!repo.existsById(id)) {
-            return ResponseEntity.status(404).build();
+    public ResponseEntity<?> eliminarPunto(@PathVariable Long id) {
+        try {
+            puntoService.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
-        repo.deleteById(id);
-
-        return ResponseEntity.ok().build();
     }
 }
 

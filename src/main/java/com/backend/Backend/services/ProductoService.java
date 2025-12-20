@@ -78,4 +78,8 @@ public class ProductoService {
     public List<Producto> getAllProductos() {
         return productoRepository.findAll();
     }
+
+    public List<Producto> getProductosByUsuarioId(Long usuarioId) {
+        return productoRepository.findAllByUsuarioId(usuarioId);
+    }
 }
